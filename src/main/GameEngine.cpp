@@ -120,11 +120,17 @@ bool GameEngine::turn(std::vector<std::string> moves) {
 
     bool isCentreFactory = factory == -1;
     std::tuple<int, bool> results = factoryMovement(isCentreFactory, factory, colour);
+    int amount = std::get<0>(results);
+    int firstPlayer = std::get<1>(results);
+    
+    if (firstPlayer) {
+      players->at(active)->setStarter(firstPlayer);
+    }
     
     players
       ->at(active)
       ->getMosaic()
-      ->place(colour, std::get<0>(results), row, std::get<1>(results), bag);
+      ->place(colour, amount, row, firstPlayer, bag);
 
     successfulTurn = true;
     std::cout << "Turn successful." << std::endl;
@@ -157,6 +163,7 @@ bool GameEngine::discardTurn(std::vector<std::string> moves) {
       if (firstPlayer) {
         toAdd = FIRST_PLAYER;
         firstPlayer = false;
+        players->at(active)->setStarter(firstPlayer);
       } 
 
       bool added = players
@@ -273,6 +280,7 @@ void GameEngine::setupStartingPlayer() {
   for (int i = 0; i < seats; ++i) {
     if (players->at(i)->getStarter()) {
       active = i;
+      players->at(i)->setStarter(false);
     }
   }
 

@@ -1,8 +1,9 @@
 SOURCEDIR = src
 BUILDDIR = objs
-VPATH = $(shell find src -type d | tr '\n' ':' | sed 's/:/ : /g')
+VPATH = src/main
 
-SOURCES = $(wildcard $(SOURCEDIR)/**/*.cpp)
+VER = c++14
+
 BASE_OBJECTS = main.o CentreFactory.o Loader.o Factory.o Azul.o PatternRow.o WallManager.o Player.o BaseEngine.o GameEngine.o Printer.o Saver.o Bag.o Tile.o Mosaic.o PatternLine.o DiscardedLine.o Wall.o LinkedList.o Node.o
 OBJECTS = $(addprefix objs/, $(BASE_OBJECTS))
 
@@ -10,12 +11,15 @@ OBJECTS = $(addprefix objs/, $(BASE_OBJECTS))
 
 all: Azul
 
+test:
+	bash ./scripts/run_tests.sh
+
 clean:
-	if [ $(shell ls objs | grep -wv "*.o" -c) -gt 0 ]; then rm objs/*.o; fi;
+	if [ $(shell ls objs | grep -wv "*.o" -c) -gt 0 ]; then rm $(BUILDDIR)/*.o; fi;
 	if [ -f Azul ]; then rm Azul; fi;
 
 Azul: $(BASE_OBJECTS)
-	g++ -Wall -Werror -std=c++14 -g -O -o $@ $(OBJECTS)
+	g++ -Wall -Werror -std=$(VER) -g -O -o $@ $(OBJECTS)
 
 %.o: %.cpp
-	g++ -Wall -Werror -std=c++14 -g -O -c $^ -o objs/$@
+	g++ -Wall -Werror -std=$(VER) -g -O -c $^ -o $(BUILDDIR)/$@
