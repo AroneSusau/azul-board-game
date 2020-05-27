@@ -1,8 +1,17 @@
+OS = $(shell uname)
+
 SOURCEDIR = src
 BUILDDIR = objs
-VPATH = src/main
+VPATH =  src/main : objs/
 
-VER = c++14
+ifeq ($(OS), Linux)
+  VER=c++1y
+else
+  VER=c++14
+endif
+
+CC = g++
+CFLAGS = -Wall -Werror -std=$(VER)
 
 BASE_OBJECTS = main.o CentreFactory.o Loader.o Factory.o Azul.o PatternRow.o WallManager.o Player.o BaseEngine.o GameEngine.o Printer.o Saver.o Bag.o Tile.o Mosaic.o PatternLine.o DiscardedLine.o Wall.o LinkedList.o Node.o
 OBJECTS = $(addprefix objs/, $(BASE_OBJECTS))
@@ -19,7 +28,8 @@ clean:
 	if [ -f Azul ]; then rm Azul; fi;
 
 Azul: $(BASE_OBJECTS)
-	g++ -Wall -Werror -std=$(VER) -g -O -o $@ $(OBJECTS)
+	$(CC) $(CFLAGS) $(OBJECTS) -o Azul
 
 %.o: %.cpp
-	g++ -Wall -Werror -std=$(VER) -g -O -c $^ -o $(BUILDDIR)/$@
+	$(CC) $(CFLAGS) -c $^ -o $(BUILDDIR)/$@
+	

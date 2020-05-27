@@ -4,6 +4,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <iomanip>
+
+#include "Fonts.h"
 
 class Printer {
 
@@ -26,8 +29,26 @@ class Printer {
     // Notifies the user of an invalid input
     void error();
 
+    // Notifies the user of an invalid input
+    void error(std::string message);
+
+    // Prints input cursor to the screen
+    void cursor();
+
+    // Starting play message
+    void startPlay();
+
+    // Prints title to screen
+    void title();
+
+    // Pause standard output until user presses enter.
+    void pause();
+
     // Prints out the options of the main menu
     void menu();
+
+    // Clears user output
+    void clear();
 
     // Prints program's authors' details
     void credits();

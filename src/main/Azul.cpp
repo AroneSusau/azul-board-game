@@ -13,9 +13,11 @@ Azul::Azul(int argc, char** argv):
       seed = std::stoi(argv[2]);
     } catch (std::runtime_error &e) {
       std::cout << "Error: Invalid seed argument passed in, using seed 0 instead." << std::endl;
+      printer->pause();
     }
   } else {
     std::cout << "Info: No seed argument detect, using seed 0 instead." << std::endl;
+    printer->pause();
   }
 
   gameEngine->getBag()->setSeed(seed);
@@ -34,8 +36,9 @@ void Azul::startGame() {
 
 void Azul::loadGame() {
   
+  printer->clear();
   std::cout << "Enter the filename from which load a game" << std::endl;
-  std::cout << "> ";
+  printer->cursor();
   std::string filename;
   std::cin >> filename;
   std::cin.clear();
@@ -51,6 +54,7 @@ void Azul::loadGame() {
 void Azul::credits() {
   
   printer->credits();
+  printer->pause();
 
 }
 
@@ -59,9 +63,11 @@ void Azul::menu() {
   char command = DEFAULT;
   bool running = true;
 
-  printer->menu();
-
   while (running && !std::cin.eof()) {
+
+    printer->clear();
+    printer->title();
+    printer->menu();
 
     command = printer->inputChar();
     
@@ -84,6 +90,7 @@ void Azul::menu() {
     } else {
       
       printer->error();
+      printer->pause();
       
     }
   }

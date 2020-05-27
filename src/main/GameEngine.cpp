@@ -52,6 +52,11 @@ void GameEngine::setupGame() {
 void GameEngine::playMenu() {
 
   bool exit = false;
+  printer->clear();
+  printer->startPlay();
+  printer->helpMenu();
+  printer->pause();
+  printer->clear();
 
   while (!exit && !factoriesEmpty() && !std::cin.eof()) {
 
@@ -74,7 +79,7 @@ void GameEngine::playMenu() {
       } else if (command == DISPLAY) {
 
         display();
-
+    
       } else if (command == SAVE) {
 
         saver->save(moves[1], this);
@@ -554,15 +559,13 @@ void GameEngine::setupPlayers() {
   for (int i = 0; i < seats; ++i) {
     std::string name = "";
     int id = i + 1;
-
+    
+    printer->clear();
     std::cout << "Enter a name for player " << id << std::endl;
     name = printer->inputString();
 
     addPlayer(id, name, 0, false);
   }
-
-  std::cout << std::endl;
-  std::cout << "Let us Play!" << std::endl;
 
 }
 
