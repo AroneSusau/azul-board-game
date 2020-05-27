@@ -1,10 +1,13 @@
-# Advance Programming - Assignment 2
+# Advance Programming - Assignment 2 ENHANCEMENTS
 
-| Author         | Student# | 
-|----------------|----------|
-| Arone Susau    | s3728977 |
+| Enhancements Author | Student# | 
+|---------------------|----------|
+| Arone Susau         | s3728977 |
+
+| Group Members  | Student# | 
 | Julian Bitetto | s3690935 |
 | Travis Stella  | s3783006 |
+
 
 ## Project Build
 
