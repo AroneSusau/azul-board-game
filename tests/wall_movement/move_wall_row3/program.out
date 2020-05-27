@@ -1,0 +1,62 @@
+
+      db    8888P 8    8 8    
+    dPYb     dP  8    8 8    
+  dPwwYb   dP   8b..d8 8    
+dP    Yb d8888 `Y88P' 8888
+
+Enter a number
+1. Start Game
+2. Load Game
+3. Credits
+4. Exit
+> Enter the filename from which load a game
+> Azul game successfully loaded
+
+=== Help Menu ===
+command: example - description
+
+turn: turn <factory> <colour> <pile> - Player turns, moving tiles from factory to the player pile line.
+discard: discard <factory> <colour> - Player turns, moving tiles from factory to the player discard pile.
+display: display - Displays all factories and the active players mosaic.
+save: save <filename> - Saves the game to the specified filename.
+help: help - Prints this help menu.
+exit OR ^D (EOF command): exit - Exits the game.
+TURN FOR PLAYER: a
+Factories:
+0: F R 
+1: . . . . 
+2: . . . . 
+3: . . . . 
+4: . . . . 
+5: . . . . 
+
+Mosaic for a
+1:         . || . . . . . 
+2:       . . || . . . . . 
+3:     . R R || . . . . . 
+4:   . . . . || . . . . . 
+5: . . . . . || . . . . . 
+broken: . . . . . . . 
+> Turn successful.
+
+=== END OF ROUND ===
+
+=== Start Round ===
+
+TURN FOR PLAYER: a
+Factories:
+0: F 
+1: L U B B 
+2: U U B U 
+3: R U L R 
+4: U B L L 
+5: U Y B U 
+
+Mosaic for a
+1:         . || . . . . . 
+2:       . . || . . . . . 
+3:     . . . || . . . R . 
+4:   . . . . || . . . . . 
+5: . . . . . || . . . . . 
+broken: . . . . . . . 
+> See ya :D

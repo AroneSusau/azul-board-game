@@ -1,0 +1,3 @@
+2
+tests/discard_command_happy_path/end_round_discard/testing.azul
+discard 5 U

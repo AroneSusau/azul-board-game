@@ -1,0 +1,4 @@
+2
+tests/turn_command_happy_path/first_player_token_turn/testing.azul
+turn 0 R 1
+turn 2 U 2

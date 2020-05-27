@@ -1,0 +1,14 @@
+
+      db    8888P 8    8 8    
+    dPYb     dP  8    8 8    
+  dPwwYb   dP   8b..d8 8    
+dP    Yb d8888 `Y88P' 8888
+
+Enter a number
+1. Start Game
+2. Load Game
+3. Credits
+4. Exit
+> Enter the filename from which load a game
+> Error: player object missing field mosaic, found pile instead.
+> See ya :D

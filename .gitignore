@@ -1,0 +1,7 @@
+Azul
+*.o
+*.dSYM
+.vscode
+**/**/.DS_Store
+*.exe
+saves/*.azul

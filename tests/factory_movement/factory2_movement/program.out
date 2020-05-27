@@ -1,0 +1,46 @@
+
+      db    8888P 8    8 8    
+    dPYb     dP  8    8 8    
+  dPwwYb   dP   8b..d8 8    
+dP    Yb d8888 `Y88P' 8888
+
+Enter a number
+1. Start Game
+2. Load Game
+3. Credits
+4. Exit
+> Enter a name for player 1
+> Enter a name for player 2
+> 
+Let us Play!
+
+=== Help Menu ===
+command: example - description
+
+turn: turn <factory> <colour> <pile> - Player turns, moving tiles from factory to the player pile line.
+discard: discard <factory> <colour> - Player turns, moving tiles from factory to the player discard pile.
+display: display - Displays all factories and the active players mosaic.
+save: save <filename> - Saves the game to the specified filename.
+help: help - Prints this help menu.
+exit OR ^D (EOF command): exit - Exits the game.
+
+=== Start Round ===
+
+TURN FOR PLAYER: a
+Factories:
+0: F 
+1: B Y L B 
+2: U U U Y 
+3: U B Y R 
+4: B L U Y 
+5: U U Y R 
+
+Mosaic for a
+1:         . || . . . . . 
+2:       . . || . . . . . 
+3:     . . . || . . . . . 
+4:   . . . . || . . . . . 
+5: . . . . . || . . . . . 
+broken: . . . . . . . 
+> Error: Factory does not contain colour of type B.
+> See ya :D

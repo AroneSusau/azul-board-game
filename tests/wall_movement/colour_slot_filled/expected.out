@@ -1,0 +1,41 @@
+
+      db    8888P 8    8 8    
+    dPYb     dP  8    8 8    
+  dPwwYb   dP   8b..d8 8    
+dP    Yb d8888 `Y88P' 8888
+
+Enter a number
+1. Start Game
+2. Load Game
+3. Credits
+4. Exit
+> Enter the filename from which load a game
+> Azul game successfully loaded
+
+=== Help Menu ===
+command: example - description
+
+turn: turn <factory> <colour> <pile> - Player turns, moving tiles from factory to the player pile line.
+discard: discard <factory> <colour> - Player turns, moving tiles from factory to the player discard pile.
+display: display - Displays all factories and the active players mosaic.
+save: save <filename> - Saves the game to the specified filename.
+help: help - Prints this help menu.
+exit OR ^D (EOF command): exit - Exits the game.
+TURN FOR PLAYER: b
+Factories:
+0: F 
+1: R U L Y 
+2: U U L B 
+3: B U R R 
+4: B L Y R 
+5: R L L R 
+
+Mosaic for b
+1:         . || R Y B L U 
+2:       . . || . . . . . 
+3:     . . . || . . . . . 
+4:   . . . . || . . . . . 
+5: . . . . . || . . . . . 
+broken: . . . . . . . 
+> Error: Input colour R has already been filled on the wall.
+> See ya :D

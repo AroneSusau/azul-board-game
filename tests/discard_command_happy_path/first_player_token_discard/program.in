@@ -1,0 +1,4 @@
+2
+tests/discard_command_happy_path/first_player_token_discard/testing.azul
+discard 0 R
+discard 2 U

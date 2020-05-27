@@ -1,0 +1,171 @@
+#include "../headers/Bag.h"
+
+Bag::Bag():
+  seed(0),
+  tiles(new LinkedList()),
+  lid(new std::vector<Tile*>())
+{}
+
+Bag::Bag(int seed):
+  seed(seed),
+  tiles(new LinkedList()),
+  lid(new std::vector<Tile*>())
+{}
+
+void Bag::shuffle() {
+
+  Colour colours[5] = {
+    RED,
+    YELLOW,
+    DARK_BLUE,
+    LIGHT_BLUE,
+    BLACK
+  };
+
+  Colour tmp [TILES_MAX] = {};
+
+  for (int i = 0; i < TILES_MAX; ++i) {
+    float res = floor(i / 20);
+    tmp[i] = colours[(int) res];
+  }
+
+  std::default_random_engine engine(seed);
+  std::uniform_int_distribution<int> uniform_dist(TILES_MIN, TILES_MAX);
+
+  for (int i = 0; i < TILES_MAX; ++i) {
+    tiles->addBack(tmp[uniform_dist(engine)]);
+  }
+
+}
+
+int Bag::getSeed() {
+  return seed;
+}
+
+void Bag::setSeed(int seed) {
+  this->seed = seed;
+}
+
+void Bag::addTile(Colour colour) {
+  
+  Colour validTiles[DIMENSIONS] = {BLACK, RED, LIGHT_BLUE, DARK_BLUE, YELLOW};
+  bool isValid = false;
+
+  for (int i = 0; i < DIMENSIONS; ++i) {
+    if (colour == validTiles[i]) {
+      isValid = true;
+    }
+  }
+
+  if (isValid) {
+    tiles->addFront(colour);
+  } else {
+    std::cout << "Error: Attempting to add invalid tile colour [" << (char) colour << "] to bag." << std::endl;
+  }
+}
+
+void Bag::removeTile(int index) {
+  tiles->remove(index);
+}
+
+Colour Bag::nextBagTile() {
+  Colour colour = tiles->getHead()->getData()->getColour();
+  tiles->remove(0);
+
+  return colour;
+}
+
+Colour Bag::getBagTile(int index) {
+  Colour result = EMPTY;
+  
+  if (index >= 0 && index < TILES_MAX) {
+    result = tiles->get(index)->getData()->getColour();
+  } else {
+    std::cout << "Error: Attepting to access out of bounds bag tile." << std::endl;
+  }
+
+  return result;
+}
+
+void Bag::addLidTile(Colour colour) {
+  Colour validTiles[DIMENSIONS] = {BLACK, RED, LIGHT_BLUE, DARK_BLUE, YELLOW};
+  bool isValid = false;
+
+  for (int i = 0; i < DIMENSIONS; ++i) {
+    if (colour == validTiles[i]) {
+      isValid = true;
+    }
+  }
+
+  if (isValid) {
+    lid->push_back(new Tile(colour));
+  } else {
+    std::cout << "Error: Attempting to add invalid tile colour [" << (char) colour << "] to Lid." << std::endl;
+  }
+}
+
+void Bag::removeLidTile(int index) {
+  if (index >= 0 && index < (int)lid->size()) {
+    lid->erase(lid->begin() + index);
+  }
+}
+
+Colour Bag::getLidTile(int index) {
+  Colour result = EMPTY;
+  
+  if (index >= 0 && index < TILES_MAX) {
+    result = lid->at(index)->getColour();
+  }
+
+  return result;
+}
+
+void Bag::refillBag() {
+  
+  for (int i = 0; i < (int) lid->size(); ++i) {
+
+    tiles->addBack(lid->at(i)->getColour());
+
+  }
+
+  resetLid();
+
+}
+
+void Bag::resetLid() {  
+  while ((int) lid->size() > 0) {
+    delete lid->at(0);
+    lid->erase(lid->begin());
+  }
+}
+
+std::string Bag::toBagSaveString() {
+  std::string output = "";
+
+  for (int i = 0; i < (int) tiles->size(); ++i) {
+    output += tiles->get(i)->getData()->getColour();
+  }
+
+  return output;
+}
+
+std::string Bag::toLidSaveString() {
+  std::string output = "";
+
+  if ((int) lid->size() > 0) {
+    for (int i = 0; i < (int) lid->size(); ++i) {
+      output += lid->at(i)->getColour();
+    }
+  } else {
+    output += "=";
+  }
+
+  return output;
+}
+
+void Bag::clear() {
+  
+  tiles->clear();
+  lid->clear();
+
+}
