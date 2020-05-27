@@ -37,6 +37,10 @@ $ make test
 
 Please enter the following command into your terminal or shell application to run the program.
 ```
+$ ./Azul
+```
+Or alternatively, if you want to automate the process of argument processing, you can run the program with the following command.
+```
 $ ./Azul $(cat program.args) < program.in > program.out
 ```
 
