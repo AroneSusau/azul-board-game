@@ -1,12 +1,19 @@
 #include "../headers/CentreFactory.h"
-#include <iostream>
 
 CentreFactory::CentreFactory():
   tiles(new std::vector<Tile*>()),
-  hasToken(true)
+  hasToken(true),
+  printer(new Printer())
 {}
 
-CentreFactory::~CentreFactory() {}
+CentreFactory::~CentreFactory() {
+  for (int i = 0; i < (int) tiles->size(); ++i) {
+    delete tiles->at(i);
+  }
+
+  delete tiles;
+  delete printer;
+}
 
 Colour CentreFactory::get(int index) {
   Colour colour = EMPTY;
@@ -14,7 +21,7 @@ Colour CentreFactory::get(int index) {
   if (index >= 0 && index < (int) tiles->size()) {
     colour = tiles->at(index)->getColour();
   } else {
-    std::cout << "Error: Attempting to access out of bounds Centre Factory tile." << std::endl;
+    printer->error("Error: Attempting to access out of bounds Centre Factory tile.");
   }
 
   return colour;
@@ -49,7 +56,7 @@ void CentreFactory::remove(int index) {
     }
 
   } else {
-    std::cout << "Error: Attempting to access out of bounds Centre Factory tile." << std::endl;
+    printer->error("Error: Attempting to access out of bounds Centre Factory tile.");
   }
 }
 

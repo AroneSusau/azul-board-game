@@ -20,6 +20,6 @@
 #define BG_BLUE "\u001b[44;1m"
 #define BG_MAGENTA "\u001b[45;1m"
 #define BG_CYAN "\u001b[46;1m"
-#define BG_WHITE "\u001b[47m;1m"
+#define BG_WHITE "\u001b[47m"
 
 #endif

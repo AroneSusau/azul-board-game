@@ -4,10 +4,11 @@
 #include <string>
 #include <iostream>
 
-#include "../headers/Tile.h"
-#include "../headers/Colour.h"
-#include "../headers/Types.h"
-#include "../headers/CentreFactory.h"
+#include "Tile.h"
+#include "Colour.h"
+#include "Types.h"
+#include "CentreFactory.h"
+#include "Printer.h"
 
 class Factory {
 public:
@@ -44,6 +45,7 @@ public:
 protected: 
     int length;
     Tile** tiles;
+    Printer* printer;
 };
 
 #endif

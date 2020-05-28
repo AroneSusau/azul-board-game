@@ -2,7 +2,8 @@
 
 DiscardedLine::DiscardedLine() :
     amount(0),
-    tiles(new Tile*[DISCARD_MAX]())
+    tiles(new Tile*[DISCARD_MAX]()),
+    printer(new Printer())
 {
     for (int i = 0; i < DISCARD_MAX; ++i) {
         tiles[i] = new Tile(EMPTY);
@@ -13,6 +14,9 @@ DiscardedLine::~DiscardedLine() {
     for (int i = 0; i < DISCARD_MAX; ++i) {
         delete tiles[i];
     }
+
+    delete [] tiles;
+    delete printer;
 }
 
 bool DiscardedLine::add(Colour colour) {
@@ -33,7 +37,7 @@ Colour DiscardedLine::getColour(int index) {
   if (index >= 0 && index < DISCARD_MAX) {
       colour = tiles[index]->getColour();
   } else {
-      std::cout << "Error: Attempting to access out of bounds Discard tile." << std::endl;
+      printer->error("Error: Attempting to access out of bounds Discard tile.");
   }
 
   return colour;
@@ -65,7 +69,7 @@ void DiscardedLine::setDiscard(Colour colour, int index) {
     if (index >= 0 && index < DISCARD_MAX) {
         tiles[index]->setColour(colour);
     } else {
-        std::cout << "Error: Attempting to access out of bounds Discard tile." << std::endl;
+        printer->error("Error: Attempting to access out of bounds Discard tile.");
     }
 }
 
@@ -75,8 +79,6 @@ void DiscardedLine::printDiscard() {
     for (int i = 0; i < DISCARD_MAX; ++i) {
         std::cout << (char) tiles[i]->getColour() << " ";
     }
-    
-    std::cout << std::endl;
 }
 
 std::string DiscardedLine::toSaveString() {

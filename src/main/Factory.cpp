@@ -2,14 +2,23 @@
 
 Factory::Factory() : 
   length(FACTORIES_SIZE),
-  tiles(new Tile*[FACTORIES_SIZE])
+  tiles(new Tile*[FACTORIES_SIZE]),
+  printer(new Printer())
 {
   for (int i = 0; i < FACTORIES_SIZE; ++i) {
     tiles[i] = new Tile(EMPTY);
   }
 }
 
-Factory::~Factory() {}
+Factory::~Factory() {
+  
+  for (int i = 0; i < FACTORIES_SIZE; ++i) {
+    delete tiles[i];
+  }
+  
+  delete [] tiles;
+  delete printer;
+}
 
 Colour Factory::get(int index) { 
   return tiles[index]->getColour(); 
@@ -19,7 +28,7 @@ void Factory::update(int index, Colour colour) {
   if (index >= 0 && index < FACTORIES_SIZE) {
     tiles[index]->setColour(colour);
   } else {
-    std::cout << "Error: Attempting to access out of bounds factory tile." << std::endl;
+    printer->error("Error: Attempting to access out of bounds factory tile.");
   }
 }
 

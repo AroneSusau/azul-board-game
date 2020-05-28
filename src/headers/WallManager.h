@@ -7,6 +7,8 @@
 #include "Tile.h"
 #include "Types.h"
 #include "Wall.h"
+#include "Fonts.h"
+#include "Printer.h"
 
 class WallManager {
   public:
@@ -58,6 +60,7 @@ class WallManager {
 
     Wall<bool>* wall;
     Wall<Colour>* colours;
+    Printer* printer;
 };
 
 #endif

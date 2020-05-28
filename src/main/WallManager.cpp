@@ -2,7 +2,8 @@
 
 WallManager::WallManager() :
   wall(new Wall<bool>()),
-  colours(new Wall<Colour>())
+  colours(new Wall<Colour>()),
+  printer(new Printer())
 {
   for (int i = 0; i < DIMENSIONS; ++i) {
 
@@ -25,6 +26,7 @@ WallManager::WallManager() :
 WallManager::~WallManager() {
   delete wall;
   delete colours;
+  delete printer;
 }
 
 bool WallManager::isTileSet(int row, int col) {
@@ -37,7 +39,7 @@ bool WallManager::isColourSet(Colour colour, int row) {
   if (row >= 0 && row < DIMENSIONS) {
     result = *wall->get(row, getColourDim(colour, row));
   } else {
-    std::cout << "Error: Attempting to access out of bounds Wall tile." << std::endl;
+    printer->error("Error: Attempting to access out of bounds Wall tile.");
   }
 
   return result;
@@ -53,7 +55,7 @@ int WallManager::getColourDim(Colour colour, int row) {
       }
     }
   } else {
-    std::cout << "Error: Attempting to access out of bounds Wall tile." << std::endl;
+    printer->error("Error: Attempting to access out of bounds Wall tile.");
   }
 
   return result;
@@ -188,15 +190,30 @@ Wall<Colour>* WallManager::getColours() {
 }
 
 void WallManager::printWall(int row) {
+  
   for (int i = 0; i < DIMENSIONS; ++i) {
+
     if (*wall->get(row, i)) {
-      std::cout << (char) *colours->get(row, i) << " ";
+      Colour colour = *colours->get(row, i);
+
+      if (colour == BLACK) {
+        std::cout << BG_BLACK;
+      } else if (colour == RED) {
+        std::cout << BG_RED;
+      } else if (colour == LIGHT_BLUE) {
+        std::cout << BG_CYAN;
+      } else if (colour == DARK_BLUE) {
+        std::cout << BG_BLUE;
+      } else if (colour == YELLOW) {
+        std::cout << BG_YELLOW << C_BLACK;
+      }
+
+      std::cout << " " << (char) colour << " " << C_RESET;
     } else {
-      std::cout << "."
-                << " ";
+      std::cout << BG_WHITE << C_BLACK << " ."
+                << " " << C_RESET;
     }
   }
-  std::cout << std::endl;
 }
 
 std::string WallManager::toSaveString() {

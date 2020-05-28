@@ -3,10 +3,11 @@
 
 #include <iostream>
 
-#include "../headers/Colour.h"
-#include "../headers/Tile.h"
-#include "../headers/PatternRow.h"
-#include "../headers/Types.h"
+#include "Colour.h"
+#include "Tile.h"
+#include "PatternRow.h"
+#include "Types.h"
+#include "Printer.h"
 
 class PatternLine {
   public:
@@ -45,6 +46,7 @@ class PatternLine {
   private:
     int length;
     PatternRow** tiles;
+    Printer* printer;
 };
 
 #endif

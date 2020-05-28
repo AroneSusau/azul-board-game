@@ -14,6 +14,8 @@
 #include "Wall.h"
 #include "DiscardedLine.h"
 #include "GameEngine.h"
+#include "Printer.h"
+#include "Fonts.h"
 
 typedef std::vector<std::vector<std::string>> SaveDataArgs;
 
@@ -32,6 +34,7 @@ class Loader {
 
   private:
     bool error;
+    Printer* printer;
 
     // Reads data filds in from file and seperates them into key value pairs.
     SaveDataArgs parseData(std::ifstream* file, std::string line);
@@ -61,7 +64,7 @@ class Loader {
     bool validateFields(SaveDataArgs args, std::string type, int length);
     
     // Flips error flag to false.
-    void resetError();
+    void resetError();  
 
 };
 

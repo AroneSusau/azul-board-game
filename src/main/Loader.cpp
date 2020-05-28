@@ -1,10 +1,13 @@
 #include "../headers/Loader.h"
 
 Loader::Loader():
-  error(false)
+  error(false),
+  printer(new Printer())
 {}
 
-Loader::~Loader() {}
+Loader::~Loader() {
+  delete printer;
+}
 
 bool Loader::load(std::string filename, GameEngine* gameEngine) {
 
@@ -33,7 +36,8 @@ bool Loader::load(std::string filename, GameEngine* gameEngine) {
   if (error) {
     gameEngine->resetGame();
   } else {
-    std::cout << "Azul game successfully loaded" << std::endl;
+    std::cout << C_GREEN << "Azul game successfully loaded" << C_RESET << std::endl;
+    printer->pause();
   }
 
   return error;
@@ -90,7 +94,7 @@ void Loader::parseTypes(SaveDataArgs args, GameEngine* gameEngine) {
     }
   } else {
     error = true;
-    std::cout << "Error: Unexpected type '" << type << "' detected." << std::endl;
+    printer->error("Error: Unexpected type '" + type + "' detected.");
   }
 }
 
@@ -171,7 +175,7 @@ void Loader::parsePlayer(SaveDataArgs data, GameEngine* gameEngine) {
       }
     } catch (std::runtime_error &e) {
       error = true;
-      std::cout << "Error: Player parsing error on field [" << field << "], with value [" << value << "]." << std::endl;
+      printer->error("Error: Player parsing error on field [" + field + "], with value [" + value + "].");
     }
   }
 
@@ -221,7 +225,7 @@ void Loader::parseFactory(SaveDataArgs data, GameEngine* gameEngine) {
       }
     } catch (std::runtime_error &e) {
       error = true;
-      std::cout << "Error: Factory parsing error on field [" << field << "], with value [" << value << "]." << std::endl;
+      printer->error("Error: Factory parsing error on field [" + field + "], with value [" + value + "].");
     }
   }
 }
@@ -254,7 +258,7 @@ void Loader::parseGame(SaveDataArgs data, GameEngine* gameEngine) {
       }
     } catch (std::runtime_error &e) {
       error = true;
-      std::cout << "Error: Game parsing error on field [" << field << "], with value [" << value << "]." << std::endl;
+      printer->error("Error: Game parsing error on field [" + field + "], with value [" + value + "].");
     }
   }
 }
@@ -271,11 +275,11 @@ bool Loader::validateTypeField(SaveDataArgs args) {
   if (!typeFieldExists) {
     typeFieldExists = false;
     error = true;
-    std::cout << "Error: Invalid save file format, type field has no value." << std::endl;
+    printer->error("Error: Invalid save file format, type field has no value.");
   } else if (typeFieldExists && !typeCorrectSize) {
     typeFieldExists = false;
     error = true;
-    std::cout << "Error: Invalid save file format, type field arguments missing." << std::endl;
+    printer->error("Error: Invalid save file format, type field arguments missing.");
   }
 
   return typeFieldExists;
@@ -289,7 +293,7 @@ bool Loader::validateFile(std::ifstream* file, std::string filename) {
     result = true;
   } else {
     error = true;
-    std::cout << "Error: Save file " << filename << " does not exist." << std::endl;
+    printer->error("Error: Save file " + filename + " does not exist.");
   }
 
   return result;
@@ -318,13 +322,13 @@ bool Loader::validateFields(SaveDataArgs args, std::string type, int length) {
       if (args[i][0] != field) {
         error = true;
         result = false;
-        std::cout << "Error: " << type << " object missing field " << field << ", found " << args[i][0] << " instead." << std::endl;
+        printer->error("Error: " + type + " object missing field " + field + ", found " + args[i][0] + " instead.");
         i = length;
       }
     } catch (std::runtime_error &e) {
         error = true;
         result = false;
-        std::cout << "Error: Issue parsing " << type << " object field " << field << "." << std::endl;
+        printer->error("Error: Issue parsing " + type + " object field " + field + ".");
         i = length;
     }
   }

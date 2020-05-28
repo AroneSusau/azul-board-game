@@ -1,32 +1,29 @@
-
-      db    8888P 8    8 8    
-    dPYb     dP  8    8 8    
-  dPwwYb   dP   8b..d8 8    
-dP    Yb d8888 `Y88P' 8888
-
+[H[2J
+[34m       db[35m   8888P[31m 8    8[33m 8    
+[34m     dPYb[35m    dP  [31m8    8[33m 8     
+[34m   dPwwYb[35m  dP   [31m8b..d8[33m 8      
+[34m dP    Yb[35m d8888 [31m`Y88P'[33m 8888   
+[0m
 Enter a number
-1. Start Game
-2. Load Game
-3. Credits
-4. Exit
-> Enter a name for player 1
-> Enter a name for player 2
-> 
-Let us Play!
-
+[37m1.[2m Start Game[0m
+[37m2.[2m Load Game[0m
+[37m3.[2m Credits[0m
+[37m4.[2m Exit[0m
+[0m[32m> [0m[H[2JEnter a name for player 1
+[32m> [0m[H[2JEnter a name for player 2
+[32m> [0m[H[2J[43;1m[30mLets play!
+[0m
 === Help Menu ===
-command: example - description
+COMMAND:       EXAMPLE                             DESCRIPTION
 
-turn: turn <factory> <colour> <pile> - Player turns, moving tiles from factory to the player pile line.
-discard: discard <factory> <colour> - Player turns, moving tiles from factory to the player discard pile.
-display: display - Displays all factories and the active players mosaic.
-save: save <filename> - Saves the game to the specified filename.
-help: help - Prints this help menu.
-exit OR ^D (EOF command): exit - Exits the game.
+turn:          turn <factory> <colour> <pile>      Player turns, moving tiles from factory to the player pile line.
+discard:       discard <factory> <colour>          Player turns, moving tiles from factory to the player discard pile.
+save:          save <filename>                     Saves the game to the specified filename.
+help:          help                                Prints this help menu.
+exit / ^D:     exit                                Exits the game.
 
-=== Start Round ===
+[2mPress enter to continue..[0m[H[2JTURN FOR PLAYER: a
 
-TURN FOR PLAYER: a
 Factories:
 0: F 
 1: B Y L B 
@@ -35,12 +32,20 @@ Factories:
 4: B L U Y 
 5: U U Y R 
 
-Mosaic for a
-1:         . || . . . . . 
-2:       . . || . . . . . 
-3:     . . . || . . . . . 
-4:   . . . . || . . . . . 
-5: . . . . . || . . . . . 
-broken: . . . . . . . 
-> Error: -1 is not a valid factory
-> See ya :D
+[47m[30mMosaic for a[0m                        Mosaic for b
+1:         . || [47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m     1:         . || [47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m
+2:       . . || [47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m     2:       . . || [47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m
+3:     . . . || [47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m     3:     . . . || [47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m
+4:   . . . . || [47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m     4:   . . . . || [47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m
+5: . . . . . || [47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m     5: . . . . . || [47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m[47m[30m . [0m
+broken: . . . . . . .               broken: . . . . . . . 
+[32m> [0m
+[31mError: Invalid input.[0m
+
+[2mPress enter to continue..[0m[H[2J[H[2J[H[2J[H[2J
+[32m __                      _        _                
+[32m //_ _  _  /_ /_/_      /_`_  _  /_//_     ._  _  /
+[32m// //_|/ //\  / /_//_/ /  /_//  /  //_|/_/// //_/. 
+[32m                                       _/     _/   
+[0m
+[0m

@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "BaseEngine.h"
+#include "Printer.h"
 
 class Saver {
 
@@ -26,6 +27,8 @@ class Saver {
     
     // Writes the state of the game to the given file
     void saveGame(std::ofstream* file, BaseEngine* gameEngine);
+
+    Printer* printer;
 
 };
 

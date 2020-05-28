@@ -1,8 +1,10 @@
 #include "../headers/Saver.h"
 
-Saver::Saver() {}
+Saver::Saver(): printer(new Printer()) {}
 
-Saver::~Saver() {}
+Saver::~Saver() {
+  delete printer;
+}
 
 void Saver::save(std::string name, BaseEngine* gameEngine) {
   try {
@@ -19,12 +21,13 @@ void Saver::save(std::string name, BaseEngine* gameEngine) {
 
       file.close();
 
-      std::cout << "Game successfully saved to '" <<  filename << "'" << std::endl;
+      std::cout << C_GREEN << "Game successfully saved to '" <<  filename << "'" << C_RESET << std::endl;
+      printer->pause();
     } else {
-      std::cout << "Error: Filename cannot be empty." << std::endl;
+      printer->error("Error: Filename cannot be empty.");
     }
   } catch (std::runtime_error &e) {
-    std::cout << "Error: Saving error occured, please try again." << std::endl;
+    printer->error("Error: Saving error occured, please try again.");
   } 
 }
 

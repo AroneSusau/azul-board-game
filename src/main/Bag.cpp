@@ -3,14 +3,29 @@
 Bag::Bag():
   seed(0),
   tiles(new LinkedList()),
-  lid(new std::vector<Tile*>())
+  lid(new std::vector<Tile*>()),
+  printer(new Printer())
 {}
 
 Bag::Bag(int seed):
   seed(seed),
   tiles(new LinkedList()),
-  lid(new std::vector<Tile*>())
+  lid(new std::vector<Tile*>()),
+  printer(new Printer())
 {}
+
+Bag::~Bag() {
+
+  delete tiles;
+  
+  for (int i = 0; i < (int) lid->size(); ++i) {
+    delete lid->at(i);
+  }
+
+  delete lid;
+  delete printer;
+
+}
 
 void Bag::shuffle() {
 
@@ -60,7 +75,7 @@ void Bag::addTile(Colour colour) {
   if (isValid) {
     tiles->addFront(colour);
   } else {
-    std::cout << "Error: Attempting to add invalid tile colour [" << (char) colour << "] to bag." << std::endl;
+    printer->error("Error: Attempting to add invalid tile colour [" + std::string(1, (char) colour) + "] to bag.");
   }
 }
 
@@ -81,7 +96,7 @@ Colour Bag::getBagTile(int index) {
   if (index >= 0 && index < TILES_MAX) {
     result = tiles->get(index)->getData()->getColour();
   } else {
-    std::cout << "Error: Attepting to access out of bounds bag tile." << std::endl;
+    printer->error("Error: Attepting to access out of bounds bag tile.");
   }
 
   return result;
@@ -100,7 +115,7 @@ void Bag::addLidTile(Colour colour) {
   if (isValid) {
     lid->push_back(new Tile(colour));
   } else {
-    std::cout << "Error: Attempting to add invalid tile colour [" << (char) colour << "] to Lid." << std::endl;
+    printer->error("Error: Attempting to add invalid tile colour [" + std::string(1, (char) colour) + "] to Lid.");
   }
 }
 
@@ -124,8 +139,11 @@ void Bag::refillBag() {
   
   for (int i = 0; i < (int) lid->size(); ++i) {
 
-    tiles->addBack(lid->at(i)->getColour());
-
+    Colour colour = lid->at(i)->getColour();
+    
+    if (colour != EMPTY && colour != FIRST_PLAYER) {
+      tiles->addBack(colour);
+    }
   }
 
   resetLid();

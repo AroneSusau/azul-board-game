@@ -2,7 +2,8 @@
 
 template <typename T>
 Wall<T>::Wall() :
-  tiles(new T**[DIMENSIONS]())
+  tiles(new T**[DIMENSIONS]()),
+  printer(new Printer())
 {
   for (int i = 0; i < DIMENSIONS; ++i) {
     tiles[i] = new T*[DIMENSIONS]();
@@ -22,6 +23,7 @@ Wall<T>::~Wall() {
   }
 
   delete [] tiles;
+  delete printer;
 }
 
 template <typename T>
@@ -31,7 +33,7 @@ T* Wall<T>::get(int row, int col) {
   if (row >= 0 && row < DIMENSIONS && col >= 0 && col <= DIMENSIONS) {
     value = tiles[row][col];
   } else {
-    std::cout << "Error: Attempting to access out of bounds Wall tile." << std::endl;
+    printer->error("Error: Attempting to access out of bounds Wall tile.");
   }
 
   return value;
@@ -42,7 +44,7 @@ void Wall<T>::set(int row, int col, T* value) {
   if (row >= 0 && row < DIMENSIONS && col >= 0 && col <= DIMENSIONS) {
     tiles[row][col] = value;
   } else {
-    std::cout << "Error: Attempting to access out of bounds Wall tile." << std::endl;
+    printer->error("Error: Attempting to access out of bounds Wall tile.");
   }
 }
 

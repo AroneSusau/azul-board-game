@@ -132,7 +132,6 @@ void Printer::helpMenu() {
   std::cout << std::endl;
   std::cout << "turn:" << std::setw(40) << "turn <factory> <colour> <pile>" << std::setw(70) << "Player turns, moving tiles from factory to the player pile line." << std::endl;
   std::cout << "discard:" << std::setw(33) << "discard <factory> <colour>" << std::setw(77) << "Player turns, moving tiles from factory to the player discard pile." << std::endl;
-  std::cout << "display:" << std::setw(14) << "display" << std::setw(82) << "Displays all factories and the active players mosaic." << std::endl;
   std::cout << "save:" << std::setw(25) << "save <filename>" << std::setw(62) << "Saves the game to the specified filename." << std::endl;
   std::cout << "help:" << std::setw(14) << "help" << std::setw(54) << "Prints this help menu." << std::endl;
   std::cout << "exit / ^D:" << std::setw(9) << "exit" << std::setw(47) << "Exits the game." << std::endl;

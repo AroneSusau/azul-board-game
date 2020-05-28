@@ -2,7 +2,8 @@
 
 PatternLine::PatternLine() :
   length(DIMENSIONS),
-  tiles(new PatternRow*[DIMENSIONS]())
+  tiles(new PatternRow*[DIMENSIONS]()),
+  printer(new Printer())
 {
   for (int i = 0; i < DIMENSIONS; ++i) {
     tiles[i] = new PatternRow(PatternRow(i + 1, EMPTY));
@@ -13,6 +14,9 @@ PatternLine::~PatternLine() {
   for (int i = 0; i < DIMENSIONS; ++i) {
     delete tiles[i];
   }
+
+  delete [] tiles;
+  delete printer;
 }
 
 int PatternLine::add(Colour colour, int amount, int row) {
@@ -31,7 +35,7 @@ int PatternLine::add(Colour colour, int amount, int row) {
       }
     }
   } else {
-    std::cout << "Error: Attempting to access out of bounds Pattern Line row." << std::endl;
+    printer->error("Error: Attempting to access out of bounds Pattern Line row.");
   }
 
   return overflow;
@@ -41,7 +45,7 @@ void PatternLine::setColour(Colour colour, int row) {
   if (row >= 0 && row < DIMENSIONS) {
     tiles[row]->setColour(colour);
   } else {
-    std::cout << "Error: Attempting to access out of bounds Pattern Line row." << std::endl;
+    printer->error("Error: Attempting to access out of bounds Pattern Line row.");
   }
 }
 
@@ -51,7 +55,7 @@ Colour PatternLine::getColour(int row) {
   if (row >= 0 && row < DIMENSIONS) {
     colour = tiles[row]->getColour();
   } else {
-    std::cout << "Error: Attempting to access out of bounds Pattern Line row." << std::endl;
+    printer->error("Error: Attempting to access out of bounds Pattern Line row.");
   }
 
   return colour;
@@ -63,7 +67,7 @@ int PatternLine::getAmount(int row) {
   if (row >= 0 && row < DIMENSIONS) {
     amount = tiles[row]->count();
   } else {
-    std::cout << "Error: Attempting to access out of bounds Pattern Line row." << std::endl;
+    printer->error("Error: Attempting to access out of bounds Pattern Line row.");
   }
 
   return amount;
@@ -73,7 +77,7 @@ void PatternLine::clearRow(int row) {
   if (row >= 0 && row < DIMENSIONS) {
     tiles[row]->clear();
   } else {
-    std::cout << "Error: Attempting to access out of bounds Pattern Line row." << std::endl;
+    printer->error("Error: Attempting to access out of bounds Pattern Line row.");
   }
 }
 
@@ -83,7 +87,7 @@ bool PatternLine::isRowFull(int row) {
   if (row >= 0 && row < DIMENSIONS) {
     isFull = tiles[row]->isFull();
   } else {
-    std::cout << "Error: Attempting to access out of bounds Pattern Line row." << std::endl;
+    printer->error("Error: Attempting to access out of bounds Pattern Line row.");
   }
 
   return isFull;
@@ -93,7 +97,7 @@ void PatternLine::printPattern(int row) {
   if (row >= 0 && row < DIMENSIONS) {
     tiles[row]->printRow();
   } else {
-    std::cout << "Error: Attempting to access out of bounds Pattern Line row." << std::endl;
+    printer->error("Error: Attempting to access out of bounds Pattern Line row.");
   }
 }
 

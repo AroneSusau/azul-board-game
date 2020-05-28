@@ -5,9 +5,10 @@
 
 #include "Tile.h"
 #include "Types.h"
+#include "Printer.h"
 
 class DiscardedLine {
-public:
+  public:
     DiscardedLine();
     ~DiscardedLine();
 
@@ -16,13 +17,13 @@ public:
 
     // returns true if able to add tile to discard line of specified colour
     bool add(Colour colour);
-    
+
     // empties out the discard line
     void clear();
 
     // Minus points are determined by the amount of non-empty tiles in the discard
     int getMinusPoints();
-    
+
     // returns number of tiles on discard line
     int count();
 
@@ -35,13 +36,15 @@ public:
     // returns string of save file format for discard line
     std::string toSaveString();
 
-private:
-    
+  private:
     // number of tiles in discard line
     int amount;
 
     // discard line tiles
     Tile** tiles;
+
+    // Printer to log info
+    Printer* printer;
 };
 
 #endif

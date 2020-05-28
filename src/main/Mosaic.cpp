@@ -3,13 +3,15 @@
 Mosaic::Mosaic() :
   wall(new WallManager()),
   pattern(new PatternLine()),
-  discard(new DiscardedLine())
+  discard(new DiscardedLine()),
+  printer(new Printer())
 {}
 
 Mosaic::~Mosaic() {
   delete wall;
   delete pattern;
   delete discard;
+  delete printer;
 }
 
 WallManager* Mosaic::getWall() { 
@@ -61,16 +63,14 @@ bool Mosaic::validatePatternLineInput(Colour colour, int row) {
 
     if (notMatching && notEmpty) {
       valid = false;
-      
-      std::cout 
-        << "Error: Input colour is " 
-        << (char) colour << " but must be " 
-        << (char) rowColour << " instead." << std::endl;
+      std::string right = std::string(1, (char) rowColour);
+      std::string wrong = std::string(1, (char) (char) colour);
+      printer->error("Error: Input colour is " + wrong + " but must be " + right + " instead.");
     
     } else if (lineFull) {
 
       valid = false;
-      std::cout << "Error: Pattern Line " << row + 1 << " is already full." << std::endl;
+      printer->error("Error: Pattern Line " + std::to_string(row + 1) + " is already full.");
 
     }
   } else {
@@ -90,10 +90,8 @@ bool Mosaic::validateWallColourInput(Colour colour, int row) {
 
       if (positionFilled && wallColour == colour) {
         valid = false;
-
-        std::cout 
-          << "Error: Input colour " << (char) colour 
-          << " has already been filled on the wall."  << std::endl;
+        std::string col = std::string(1, (char) colour);
+        printer->error("Error: Input colour " + col + " has already been filled on the wall.");
       }
     }
   } else {

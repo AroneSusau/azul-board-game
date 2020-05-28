@@ -3,9 +3,11 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "Types.h"
 #include "Tile.h"
+#include "Printer.h"
 
 class CentreFactory {
   public:
@@ -57,6 +59,7 @@ class CentreFactory {
   private:
     std::vector<Tile*>* tiles;
     bool hasToken;
+    Printer* printer;
 };
 
 #endif

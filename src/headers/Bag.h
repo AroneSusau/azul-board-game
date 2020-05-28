@@ -11,12 +11,14 @@
 #include "Tile.h"
 #include "Types.h"
 #include "LinkedList.h"
+#include "Printer.h"
 
 class Bag {
 
   public:
     Bag();
     Bag(int seed);
+    ~Bag();
 
     // creates a random assortment of 100 tiles
     void shuffle();
@@ -67,6 +69,7 @@ class Bag {
       int seed;
       LinkedList* tiles;
       std::vector<Tile*>* lid;
+      Printer* printer;
 
 };
 

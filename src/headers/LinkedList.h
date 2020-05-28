@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "Node.h"
+#include "Printer.h"
 
 class LinkedList {
   
@@ -41,6 +42,7 @@ class LinkedList {
   private:
     Node* head;
     Node* tail;
+    Printer* printer;
     
 };
 

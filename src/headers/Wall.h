@@ -6,6 +6,7 @@
 #include "Tile.h"
 #include "Colour.h"
 #include "Types.h"
+#include "Printer.h"
 
 template <typename T>
 class Wall {
@@ -21,6 +22,7 @@ class Wall {
 
   private:
     T*** tiles;
+    Printer* printer;
 };
 
 #endif

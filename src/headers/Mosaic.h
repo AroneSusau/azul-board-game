@@ -10,6 +10,7 @@
 #include "WallManager.h"
 #include "Bag.h"
 #include "LinkedList.h"
+#include "Printer.h"
 
 class Mosaic {
   public:
@@ -41,6 +42,7 @@ class Mosaic {
     WallManager* wall;
     PatternLine* pattern;
     DiscardedLine* discard;
+    Printer* printer;
 };
 
 #endif

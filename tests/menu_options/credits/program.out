@@ -1,25 +1,21 @@
 
-      db    8888P 8    8 8    
-    dPYb     dP  8    8 8    
-  dPwwYb   dP   8b..d8 8    
-dP    Yb d8888 `Y88P' 8888
+[31mError: No seed argument detected, using seed 0 instead.[0m
 
-Info: No seed argument detect, using seed 0 instead.
+[2mPress enter to continue..[0m[H[2J
+[34m       db[35m   8888P[31m 8    8[33m 8    
+[34m     dPYb[35m    dP  [31m8    8[33m 8     
+[34m   dPwwYb[35m  dP   [31m8b..d8[33m 8      
+[34m dP    Yb[35m d8888 [31m`Y88P'[33m 8888   
+[0m
 Enter a number
-1. Start Game
-2. Load Game
-3. Credits
-4. Exit
-> Name: Arone Susau
-Student ID: s3728977
-Email: s3728977@student.rmit.edu.au
-
-Name: Julian Bitetto
-Student ID: s3690935
-Email: s3690935@student.rmit.edu.au
-
-Name: Travis Stella
-Student ID: s3783006
-Email: s3783006@student.rmit.edu.au
-
-> See ya :D
+[37m1.[2m Start Game[0m
+[37m2.[2m Load Game[0m
+[37m3.[2m Credits[0m
+[37m4.[2m Exit[0m
+[0m[32m> [0m[H[2J[H[2J
+[32m __                      _        _                
+[32m //_ _  _  /_ /_/_      /_`_  _  /_//_     ._  _  /
+[32m// //_|/ //\  / /_//_/ /  /_//  /  //_|/_/// //_/. 
+[32m                                       _/     _/   
+[0m
+[0m

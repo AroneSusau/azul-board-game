@@ -18,11 +18,15 @@ void GameEngine::run(bool isLoadedGame) {
   
   if (!isLoadedGame) {
     setupGame();
-    printer->helpMenu();
   } else {
     playing = true;
-    printer->helpMenu();
   }
+
+  printer->clear();
+  printer->startPlay();
+  printer->helpMenu();
+  printer->pause();
+  printer->clear();
 
   while (playing && !std::cin.eof()) {
 
@@ -52,19 +56,14 @@ void GameEngine::setupGame() {
 void GameEngine::playMenu() {
 
   bool exit = false;
-  printer->clear();
-  printer->startPlay();
-  printer->helpMenu();
-  printer->pause();
-  printer->clear();
 
   while (!exit && !factoriesEmpty() && !std::cin.eof()) {
 
     bool turnInProgress = true;
-    display();
 
     while (!exit && turnInProgress && !std::cin.eof()) {
 
+      display();
       std::vector<std::string> moves = printer->inputArgs();
       std::string command = moves[0];
 
@@ -94,19 +93,18 @@ void GameEngine::playMenu() {
         turnInProgress = false;
         exit = true;
 
-        if (command == EXIT_GAME) {
-          std::cout << "Returning to main menu.." << std::endl;
-        }
-
       } else {
 
         printer->error();
 
       }
+
+      printer->clear();
     }
 
     turns++;
     nextPlayer();
+    printer->clear();
 
   }
 }
@@ -138,8 +136,6 @@ bool GameEngine::turn(std::vector<std::string> moves) {
       ->place(colour, amount, row, firstPlayer, bag);
 
     successfulTurn = true;
-    std::cout << "Turn successful." << std::endl;
-    std::cout << std::endl;
 
   }
 
@@ -183,8 +179,6 @@ bool GameEngine::discardTurn(std::vector<std::string> moves) {
     }
 
     successfulTurn = true;
-    std::cout << "Turn successful." << std::endl;
-    std::cout << std::endl;
   }
 
    return successfulTurn;
@@ -238,9 +232,6 @@ void GameEngine::setupRound() {
   
   fillFactories();
   setupStartingPlayer();
-  std::cout << std::endl;
-  std::cout << "=== Start Round ===" << std::endl;
-  std::cout << std::endl;
 }
 
 void GameEngine::endRound() {
@@ -256,8 +247,10 @@ void GameEngine::endRound() {
     endGameScoring();
     calculateWinner();
     playing = false;
-    std::cout << "Returning to main menu.." << std::endl;
   }
+
+  printer->pause();
+  printer->clear();
 }
 
 bool GameEngine::checkEndCondition() {
@@ -326,6 +319,9 @@ void GameEngine::scoreRound() {
         }
       }
     }
+
+    // Print player points
+    std::cout << "Player " << player->getName() << " points: " << player->getScore() << std::endl;
 
     player->getMosaic()->getDiscard()->clear();
   }
@@ -426,12 +422,12 @@ bool GameEngine::validateTurnInput(std::vector<std::string> moves) {
       valid = validFactory && validRow && validColour && validPatternInput && validWallInput;
 
     } catch (std::runtime_error &e) {
-      std::cout << "Error: Invalid arguments passed in for discard command." << std::endl;
+      printer->error("Error: Invalid arguments passed in for discard command.");
     } catch(std::invalid_argument &e) {
-      std::cout << "Error: Bad character passed in for turn command argument." << std::endl;
+      printer->error("Error: Bad character passed in for turn command argument.");
     }
   } else {
-    std::cout << "Error: Invalid argument count." << std::endl;
+    printer->error("Error: Invalid argument count.");
   }
 
   return valid;
@@ -451,12 +447,12 @@ bool GameEngine::validateDiscardInput(std::vector<std::string> moves) {
       valid = validFactory && validColour;
 
     } catch (std::runtime_error &e) {
-      std::cout << "Error: Invalid arguments passed in for discard command. Use 'help' for command usage." << std::endl;
+      printer->error("Error: Invalid arguments passed in for discard command. Use 'help' for command usage.");
     } catch(std::invalid_argument &e) {
-      std::cout << "Error: Bad character passed in for row argument." << std::endl;
+      printer->error("Error: Bad character passed in for row argument.");
     }
   } else {
-    std::cout << "Error: Invalid arguments passed in for discard command. Use 'help' for command usage." << std::endl;
+    printer->error("Error: Invalid arguments passed in for discard command. Use 'help' for command usage.");
   }
 
   return valid;
@@ -484,15 +480,15 @@ bool GameEngine::validateFactoryInput(int input, Colour colour) {
     }
 
     if (factoryEmpty) {
-      std::cout << "Error: " << input << " is an empty factory" << std::endl;
+      printer->error("Error: " + std::string(1, (char) colour) + " is an empty factory");
       valid = false;
     } else if (containsColour) {
-      std::cout << "Error: Factory does not contain colour of type " << (char) colour << "." << std::endl;
+      printer->error("Error: Factory does not contain colour of type " + std::string(1, (char) colour) + ".");
       valid = false;
     }
 
   } else {
-    std::cout << "Error: " << input << " is not a valid factory" << std::endl;
+    printer->error("Error: " + std::to_string(input) + " is not a valid factory");
     valid = false;
   }
 
@@ -514,7 +510,7 @@ bool GameEngine::validateColourInput(Colour input) {
 
   if (!matchFound) {
     valid = false;
-    std::cout << "Error: " << (char) input << " is not a valid colour tile" << std::endl;
+    printer->error("Error: " + std::string(1, (char) input) + " is not a valid colour tile");
   }
 
   return valid;
@@ -526,7 +522,7 @@ bool GameEngine::validateRowInput(int input) {
   bool validRow = input > 0 && input <= ROWS;
 
   if(!validRow) {
-    std::cout << "Error: " << input << " is not a valid row" << std::endl;
+    printer->error("Error: " + std::to_string(input) + " is not a valid row");
     valid = false;
   }
 
@@ -537,21 +533,60 @@ void GameEngine::display() {
   
   std::string name = players->at(active)->getName();
   
-  std::cout << "TURN FOR PLAYER: " << name << std::endl;
-  
-  // print factory information
+  printer->log("TURN FOR PLAYER: " + name);
+  std::cout << std::endl;
   printer->log("Factories:");
-
-  std::cout << centreFactory->toString() << std::endl;
+  printer->log(centreFactory->toString());
 
   for (int i = 0; i < FACTORIES_NUM; ++i) {
-    std::cout << i + 1 << ": " << factories[i]->toString() << std::endl;
+    printer->log(std::to_string(i + 1) + ": " + factories[i]->toString());
   }
 
-  // print mosaic information
   std::cout << std::endl;
-  players->at(active)->getMosaic()->printMosaic(name);
 
+  // Pretty print player names
+  for (int j = 0; j < (int) players->size(); ++j) {
+    std::string name = players->at(j)->getName();
+    int spacing = (j + 1) * (31 - (int) name.size());
+    
+    if (active == j) {
+      spacing += 5;
+      std::cout << BG_WHITE << C_BLACK << "Mosaic for " << name << C_RESET << std::setw(spacing);
+    } else {
+      spacing -= 1;
+      std::cout << "Mosaic for " << name << std::setw(spacing);
+    }
+  }
+
+  std::cout << std::endl;
+
+  // Pretty print player mosaic and pattern lines
+  for (int i = 0; i < 5; ++i) {
+    for (int j = 0; j < (int) players->size(); ++j) {
+      Player* player = players->at(j);
+      PatternLine* pattern = player->getMosaic()->getPattern();
+      WallManager* wall = player->getMosaic()->getWall();
+      
+      std::cout << std::setw(j * 6) << i + 1 << ": ";
+      pattern->printPattern(i);
+      std::cout << "|| ";
+      wall->printWall(i);
+    }
+    std::cout << std::endl;
+  }
+
+  // Pretty print discard lines
+  for (int i = 0; i < (int) players->size(); ++i) {
+    Player* player = players->at(i);
+    player->getMosaic()->getDiscard()->printDiscard();
+    
+    if (i < (int) players->size() - 1) {
+      std::cout << std::setw(22);
+    }
+
+  }
+
+  std::cout << std::endl;
 }
 
 void GameEngine::setupPlayers() {

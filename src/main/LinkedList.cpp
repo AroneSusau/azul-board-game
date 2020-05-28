@@ -2,7 +2,8 @@
 
 LinkedList::LinkedList() :
   head(nullptr),
-  tail(nullptr)
+  tail(nullptr),
+  printer(new Printer())
 {}
 
 LinkedList::~LinkedList() {
@@ -21,6 +22,8 @@ LinkedList::~LinkedList() {
 
     curr = next;
   }
+
+  delete printer;
 }
 
 Node* LinkedList::get(int index) {
@@ -105,7 +108,7 @@ int LinkedList::remove(int index) {
     ++deleted;
     
   } else {
-    std::cout << "Error: Attempting to remove node from linked list outside of size." << std::endl;
+    printer->error("Error: Attempting to remove node from linked list outside of size.");
   }
 
   return deleted;
