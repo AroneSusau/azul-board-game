@@ -45,7 +45,7 @@ void Bag::shuffle() {
   }
 
   std::default_random_engine engine(seed);
-  std::uniform_int_distribution<int> uniform_dist(TILES_MIN, TILES_MAX);
+  std::uniform_int_distribution<int> uniform_dist(TILES_MIN, TILES_MAX - 1);
 
   for (int i = 0; i < TILES_MAX; ++i) {
     tiles->addBack(tmp[uniform_dist(engine)]);
