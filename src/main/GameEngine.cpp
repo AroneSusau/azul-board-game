@@ -86,6 +86,7 @@ void GameEngine::playMenu() {
       } else if (command == HELP) {
 
         printer->helpMenu();
+        printer->pause();
 
       } else if (command == EXIT_GAME || std::cin.eof()) {
 

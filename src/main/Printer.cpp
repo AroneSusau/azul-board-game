@@ -128,8 +128,16 @@ void Printer::credits() {
 void Printer::helpMenu() {
   std::cout << std::endl;
   std::cout << "=== Help Menu ===" << std::endl;
-  std::cout << "COMMAND:" << std::setw(14) << "EXAMPLE" << std::setw(40) << "DESCRIPTION" << std::endl;
+  std::cout << "COLOUR CODES" << std::endl;
+  std::cout << "R: " << BG_RED << "Red" << C_RESET << std::endl;
+  std::cout << "Y: " << BG_YELLOW << C_BLACK << "Yellow" << C_RESET << std::endl;
+  std::cout << "B: " << BG_BLUE << "Dark Blue" << C_RESET << std::endl;
+  std::cout << "L: " << BG_CYAN << "Light Blue" << C_RESET << std::endl;
+  std::cout << "U: " << BG_BLACK << "Black" << C_RESET << std::endl;
+  std::cout << ".: " << BG_WHITE << C_BLACK << "Empty" << C_RESET << std::endl;
+  std::cout << "F: " << BG_WHITE << C_BLACK << "First Player Token" << C_RESET << std::endl;
   std::cout << std::endl;
+  std::cout << "COMMANDS:" << std::setw(13) << "EXAMPLE" << std::setw(40) << "DESCRIPTION" << std::endl;
   std::cout << "turn:" << std::setw(40) << "turn <factory> <colour> <pile>" << std::setw(70) << "Player turns, moving tiles from factory to the player pile line." << std::endl;
   std::cout << "discard:" << std::setw(33) << "discard <factory> <colour>" << std::setw(77) << "Player turns, moving tiles from factory to the player discard pile." << std::endl;
   std::cout << "save:" << std::setw(25) << "save <filename>" << std::setw(62) << "Saves the game to the specified filename." << std::endl;

@@ -193,10 +193,9 @@ void WallManager::printWall(int row) {
   
   for (int i = 0; i < DIMENSIONS; ++i) {
 
-    if (*wall->get(row, i)) {
-      Colour colour = *colours->get(row, i);
+    Colour colour = *colours->get(row, i);
 
-      if (colour == BLACK) {
+    if (colour == BLACK) {
         std::cout << BG_BLACK;
       } else if (colour == RED) {
         std::cout << BG_RED;
@@ -208,10 +207,10 @@ void WallManager::printWall(int row) {
         std::cout << BG_YELLOW << C_BLACK;
       }
 
+    if (*wall->get(row, i)) {
       std::cout << " " << (char) colour << " " << C_RESET;
     } else {
-      std::cout << BG_WHITE << C_BLACK << " ."
-                << " " << C_RESET;
+      std::cout << " ." << " " << C_RESET;
     }
   }
 }
