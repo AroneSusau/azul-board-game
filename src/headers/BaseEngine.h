@@ -44,12 +44,16 @@ class BaseEngine {
     CentreFactory* getCentreFactory();
     Player* getPlayer(int index);
 
+    int getFactoryLength();
+    void setFactoryLength(int length);
+
     virtual void run(bool isLoadedGame);
     virtual void resetGame();
 
   protected:
     int seats;
     int turns;
+    int factoryLength;
     int active;
     bool playing;
     Printer* printer;

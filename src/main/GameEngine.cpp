@@ -49,8 +49,9 @@ void GameEngine::run(bool isLoadedGame) {
 
 void GameEngine::setupGame() {
   playing = true;
-  bag->shuffle();
   setupPlayerCount();
+  setupFactoryCount();
+  bag->shuffle();
   setupPlayers();
 }
 
@@ -365,7 +366,7 @@ void GameEngine::calculateWinner() {
 bool GameEngine::factoriesEmpty() {
   bool empty = true;
 
-  for(int i = 0; i < FACTORIES_NUM; i++) {
+  for(int i = 0; i < factoryLength; i++) {
     if(!factories[i]->isEmpty()) {
       empty = false;
     }
@@ -380,8 +381,7 @@ bool GameEngine::factoriesEmpty() {
 
 void GameEngine::fillFactories() {
   
-  for (int i = 0; i < FACTORIES_NUM; ++i) {
-    
+  for (int i = 0; i < factoryLength; ++i) {
     for (int j = 0; j < FACTORIES_SIZE; ++j) {  
       factories[i]->update(j, bag->nextBagTile());
     }
@@ -397,7 +397,7 @@ void GameEngine::resetGame() {
   centreFactory->clear();
   playing = false;
   
-  for (int i = 0; i < FACTORIES_NUM; ++i) {
+  for (int i = 0; i < factoryLength; ++i) {
     factories[i]->clear();
   }
   
@@ -462,7 +462,7 @@ bool GameEngine::validateDiscardInput(std::vector<std::string> moves) {
 bool GameEngine::validateFactoryInput(int input, Colour colour) {
   
   bool valid = true;
-  bool validFactory = input >= 0 && input <= FACTORIES_NUM;
+  bool validFactory = input >= 0 && input <= factoryLength;
   
   if (validFactory) {
 
@@ -536,41 +536,36 @@ void GameEngine::display() {
   
   printer->log("TURN FOR PLAYER: " + name);
   std::cout << std::endl;
-  printer->log("Factories:");
-  printer->log(centreFactory->toString());
-
-  for (int i = 0; i < FACTORIES_NUM; ++i) {
-    printer->log(std::to_string(i + 1) + ": " + factories[i]->toString());
-  }
+  
+  printFactories();
 
   std::cout << std::endl;
 
-  int iterations = 1;
-  int ROW_LIMIT = 2;
-
-  if (seats / ROW_LIMIT > 1) {
-    iterations = 2;
-  }
+  int rowLimit = 2;
+  bool stacked = (double) seats / (double) rowLimit > 1;
+  int iterations = stacked ? 2 : 1;
 
   for (int count = 0; count < iterations; ++count) {
     
     std::cout << std::endl;
     std::cout << std::endl;
 
-    // Pretty print player names
-    for (int j = 0; j < ROW_LIMIT; ++j) {
-      int index = j + (ROW_LIMIT * count);
+    rowLimit = seats == 3 && count == 1 ? 1 : rowLimit;
 
-      std::string name = players->at(index)->getName();
-      int spacing = (j + 1) * (31 - (int) name.size());
+    // Pretty print player names
+    for (int j = 0; j < rowLimit; ++j) {
       
-      if (active == index) {
-        spacing += 5;
-        std::cout << BG_WHITE << C_BLACK << "Mosaic for " << name << C_RESET << std::setw(spacing);
-      } else {
-        spacing -= 1;
-        std::cout << "Mosaic for " << name << std::setw(spacing);
-      }
+      int modifier = seats == 3 && count == 1 ? 1 : 0;
+      int index = (j + (rowLimit * count)) + modifier;
+      bool isActive = active == index;
+      int base = (j + 1) * (31 - (int) name.size());
+      int spacing = isActive ? base + 5 : base - 1;
+      spacing = j % 2 != 0 ? 0 : spacing;
+      std::string name = players->at(index)->getName();
+      std::string activeOutput = BG_BLACK + C_WHITE + "Mosaic for " + name + C_RESET;
+      std::string normalOutput = "Mosaic for " + name;
+      std::string output = isActive ? activeOutput : normalOutput;
+      std::cout << output << std::setw(spacing);
     }
 
     std::cout << std::endl;
@@ -578,8 +573,9 @@ void GameEngine::display() {
 
     // Pretty print player mosaic and pattern lines
     for (int i = 0; i < 5; ++i) {
-      for (int j = 0; j < ROW_LIMIT; ++j) {
-        int index = j + (ROW_LIMIT * count);
+      for (int j = 0; j < rowLimit; ++j) {
+        int modifier = seats == 3 && count == 1 ? -1 : 0;
+        int index = j + (rowLimit * count) + modifier;
 
         Player* player = players->at(index);
         PatternLine* pattern = player->getMosaic()->getPattern();
@@ -596,21 +592,14 @@ void GameEngine::display() {
     // Pretty print discard lines
     std::cout << std::endl;
 
-    for (int i = 0; i < ROW_LIMIT; ++i) {
-      int index = i + (ROW_LIMIT * count);
-      int spacing = 0;
-
-      if (index % 2 == 0) {
-        spacing = 22;
-      }
+    for (int i = 0; i < rowLimit; ++i) {
+      int index = i + (rowLimit * count);
+      int spacing = index % 2 == 0 ? 22 : 0;
 
       Player* player = players->at(index);
-      player->getMosaic()->getDiscard()->printDiscard();
       
-      if (i < (int) players->size() - 1) {
-        std::cout << std::setw(spacing);
-      }
-
+      player->getMosaic()->getDiscard()->printDiscard();
+      std::cout << std::setw(spacing);
     }
   }
 
@@ -664,6 +653,37 @@ void GameEngine::setupPlayerCount() {
     
   }
 
+}
+
+void GameEngine::setupFactoryCount() {
+
+  for (int i = 0; i < factoryLength; ++i) {
+    delete factories[i];
+  }
+
+  delete [] factories;
+
+  if (seats == 3) {
+    factoryLength = 7;
+  } else if (seats == 4) {
+    factoryLength = 9;
+  }
+
+  factories = new Factory*[factoryLength];
+
+  for (int i = 0; i < factoryLength; ++i) {
+    factories[i] = new Factory();
+  }
+
+}
+
+void GameEngine::printFactories() {
+  printer->log("Factories:");
+  printer->log(centreFactory->toString());
+
+  for (int i = 0; i < factoryLength; ++i) {
+    printer->log(std::to_string(i + 1) + ": " + factories[i]->toString());
+  }
 }
 
 Saver* GameEngine::getSaver() {

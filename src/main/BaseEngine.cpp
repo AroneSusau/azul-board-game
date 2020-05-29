@@ -3,15 +3,16 @@
 BaseEngine::BaseEngine() :
   seats(2),
   turns(0),
+  factoryLength(5),
   active(0),
   playing(false),
   printer(new Printer()),
   bag(new Bag()),
   players(new std::vector<Player*>()),
   centreFactory(new CentreFactory()),
-  factories(new Factory*[FACTORIES_NUM]())
+  factories(new Factory*[factoryLength]())
 {
-  for (int i = 0; i < FACTORIES_NUM; ++i) {
+  for (int i = 0; i < factoryLength; ++i) {
     factories[i] = new Factory();
   }
 }
@@ -19,15 +20,16 @@ BaseEngine::BaseEngine() :
 BaseEngine::BaseEngine(int seats) :
   seats(seats),
   turns(0),
+  factoryLength(5),
   active(0),
   playing(false),
   printer(new Printer()),
   bag(new Bag()),
   players(new std::vector<Player*>()),
   centreFactory(new CentreFactory()),
-  factories(new Factory*[FACTORIES_NUM]())
+  factories(new Factory*[factoryLength]())
 {
-  for (int i = 0; i < FACTORIES_NUM; ++i) {
+  for (int i = 0; i < factoryLength; ++i) {
     factories[i] = new Factory();
   }
 }
@@ -39,7 +41,7 @@ BaseEngine::~BaseEngine() {
     players->erase(players->begin() + i);
   }
 
-  for (int i = 0; i < FACTORIES_NUM; ++i) {
+  for (int i = 0; i < factoryLength; ++i) {
     delete factories[i];
   }
 
@@ -101,7 +103,7 @@ void BaseEngine::setActivePlayer(int active) {
 Factory* BaseEngine::getFactory(int index) {
   Factory* result = nullptr;
   
-  if (index >= 0 && index < FACTORIES_NUM) {
+  if (index >= 0 && index < factoryLength) {
     result = factories[index];
   }
 
@@ -122,4 +124,12 @@ Player* BaseEngine::getPlayer(int index) {
 
 Bag* BaseEngine::getBag() {
   return bag;
+}
+
+int BaseEngine::getFactoryLength() {
+  return factoryLength;
+}
+
+void BaseEngine::setFactoryLength(int length) {
+  factoryLength = length;
 }

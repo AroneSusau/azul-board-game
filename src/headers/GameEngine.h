@@ -39,6 +39,9 @@ class GameEngine : public BaseEngine {
     // Setup number of players in game
     void setupPlayerCount();
 
+    // Setup number of factories in game
+    void setupFactoryCount();
+
     // setup of a new round, fill factories, first player token back to centre
     void setupRound();
 
@@ -101,6 +104,9 @@ class GameEngine : public BaseEngine {
 
     // display factory and mosaic information for the player
     void display();
+
+    // Print factories tiles data
+    void printFactories();
     
 };
 

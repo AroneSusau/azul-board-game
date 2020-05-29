@@ -1,7 +1,6 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#define FACTORIES_NUM 5
 #define FACTORIES_SIZE 4
 
 #define TILES_MAX 100

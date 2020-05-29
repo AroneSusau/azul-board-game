@@ -61,7 +61,7 @@ void Saver::saveFactory(std::ofstream* file, BaseEngine* gameEngine) {
 
   *file << "type:factory" << std::endl;
 
-  for (int i = 0; i < FACTORIES_NUM; ++i) {
+  for (int i = 0; i < gameEngine->getFactoryLength(); ++i) {
     *file << "f" << i + 1 << ":" << gameEngine->getFactory(i)->toSaveString() << std::endl;
   }
 

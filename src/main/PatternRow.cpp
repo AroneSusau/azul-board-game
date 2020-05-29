@@ -101,13 +101,16 @@ void PatternRow::printRow() {
 
     if (colour == RED) {
       std::cout << BG_RED;
+      std::cout << C_WHITE;
     } else if (colour == YELLOW) {
       std::cout << BG_YELLOW;
       std::cout << C_BLACK;
     }  else if (colour == LIGHT_BLUE) {
       std::cout << BG_CYAN;
+      std::cout << C_WHITE;
     }  else if (colour == DARK_BLUE) {
       std::cout << BG_BLUE;
+      std::cout << C_WHITE;
     }  else if (colour == BLACK) {
       std::cout << BG_BLACK;
       std::cout << C_WHITE;
