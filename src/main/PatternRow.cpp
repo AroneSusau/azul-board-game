@@ -92,13 +92,31 @@ void PatternRow::printRow() {
     std::cout << "  ";
   }
   
-  for (int i = max - 1; i >= 0; --i) {
+  for (int i = max - 1; i >= 0; --i) {  
     if (i >= length) {
+      std::cout << BG_WHITE;
+      std::cout << C_BLACK;
       std::cout << (char) EMPTY << " ";
     } else {
+
+    if (colour == RED) {
+      std::cout << BG_RED;
+    } else if (colour == YELLOW) {
+      std::cout << BG_YELLOW;
+      std::cout << C_BLACK;
+    }  else if (colour == LIGHT_BLUE) {
+      std::cout << BG_CYAN;
+    }  else if (colour == DARK_BLUE) {
+      std::cout << BG_BLUE;
+    }  else if (colour == BLACK) {
+      std::cout << BG_BLACK;
+      std::cout << C_WHITE;
+    }
       std::cout << (char) colour << " ";
     }
   }
+
+  std::cout << C_RESET;
 }
 
 std::string PatternRow::toSaveString() {

@@ -6,6 +6,7 @@
 
 #include "Colour.h"
 #include "Types.h"
+#include "Fonts.h"
 
 class PatternRow {
 

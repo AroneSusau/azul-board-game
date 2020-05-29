@@ -77,7 +77,26 @@ void DiscardedLine::printDiscard() {
     std::cout << "broken: ";
 
     for (int i = 0; i < DISCARD_MAX; ++i) {
-        std::cout << (char) tiles[i]->getColour() << " ";
+        Colour colour = tiles[i]->getColour();
+
+        if (colour == RED) {
+            std::cout << BG_RED;
+        } else if (colour == YELLOW) {
+            std::cout << BG_YELLOW;
+            std::cout << C_BLACK;
+        }  else if (colour == LIGHT_BLUE) {
+            std::cout << BG_CYAN;
+        }  else if (colour == DARK_BLUE) {
+            std::cout << BG_BLUE;
+        }  else if (colour == BLACK) {
+            std::cout << BG_BLACK;
+        }  else if (colour == EMPTY || colour == FIRST_PLAYER) {
+            std::cout << BG_WHITE;
+            std::cout << C_BLACK;
+        }
+        
+        std::cout << (char) colour << " ";
+        std::cout << C_RESET;
     }
 }
 

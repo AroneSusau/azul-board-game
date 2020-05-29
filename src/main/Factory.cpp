@@ -86,8 +86,28 @@ std::string Factory::toString() {
   std::string output = "";
 
   for(int i = 0; i < FACTORIES_SIZE; ++i) {
-    output += (char) tiles[i]->getColour();
+    
+    Colour colour = tiles[i]->getColour();
+
+    if (colour == RED) {
+      output += BG_RED;
+    } else if (colour == YELLOW) {
+      output += BG_YELLOW;
+      output += C_BLACK;
+    }  else if (colour == LIGHT_BLUE) {
+      output += BG_CYAN;
+    }  else if (colour == DARK_BLUE) {
+      output += BG_BLUE;
+    }  else if (colour == BLACK) {
+      output += BG_BLACK;
+    }  else if (colour == EMPTY) {
+      output += BG_WHITE;
+    }
+    
     output += " ";
+    output += (char) colour;
+    output += " ";
+    output += C_RESET;
   }
 
   return output;

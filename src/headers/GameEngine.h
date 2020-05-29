@@ -36,6 +36,9 @@ class GameEngine : public BaseEngine {
     // Setup for inital player info
     void setupPlayers();
 
+    // Setup number of players in game
+    void setupPlayerCount();
+
     // setup of a new round, fill factories, first player token back to centre
     void setupRound();
 

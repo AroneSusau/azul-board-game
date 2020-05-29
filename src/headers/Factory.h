@@ -9,6 +9,7 @@
 #include "Types.h"
 #include "CentreFactory.h"
 #include "Printer.h"
+#include "Fonts.h"
 
 class Factory {
 public:

@@ -6,6 +6,7 @@
 #include "Tile.h"
 #include "Types.h"
 #include "Printer.h"
+#include "Fonts.h"
 
 class DiscardedLine {
   public:

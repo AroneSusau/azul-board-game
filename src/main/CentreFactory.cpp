@@ -103,13 +103,38 @@ std::string CentreFactory::toString() {
   std::string output = "0: ";
 
   if(hasToken) {
+    output += BG_WHITE;
+    output += C_BLACK;
+    output += " ";
     output += (char) Colour::FIRST_PLAYER;
     output += " ";
+    output += C_RESET;
   }
 
   for(int i = 0; i < (int) tiles->size(); ++i) {
-    output += (char) tiles->at(i)->getColour();
+
+    Colour colour = tiles->at(i)->getColour();
+
+    if (colour == RED) {
+      output += BG_RED;
+    } else if (colour == YELLOW) {
+      output += BG_YELLOW;
+      output += C_BLACK;
+    }  else if (colour == LIGHT_BLUE) {
+      output += BG_CYAN;
+    }  else if (colour == DARK_BLUE) {
+      output += BG_BLUE;
+    }  else if (colour == BLACK) {
+      output += BG_BLACK;
+    }  else if (colour == EMPTY) {
+      output += BG_WHITE;
+      output += C_BLACK;
+    }
+    
     output += " ";
+    output += (char) colour;
+    output += " ";
+    output += C_RESET;
   }
 
   return output;

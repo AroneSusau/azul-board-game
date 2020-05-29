@@ -50,6 +50,7 @@ void GameEngine::run(bool isLoadedGame) {
 void GameEngine::setupGame() {
   playing = true;
   bag->shuffle();
+  setupPlayerCount();
   setupPlayers();
 }
 
@@ -230,7 +231,6 @@ std::tuple<int, bool> GameEngine::factoryMovement(bool isCentreFactory, int fact
 }
 
 void GameEngine::setupRound() {
-  
   fillFactories();
   setupStartingPlayer();
 }
@@ -545,46 +545,73 @@ void GameEngine::display() {
 
   std::cout << std::endl;
 
-  // Pretty print player names
-  for (int j = 0; j < (int) players->size(); ++j) {
-    std::string name = players->at(j)->getName();
-    int spacing = (j + 1) * (31 - (int) name.size());
-    
-    if (active == j) {
-      spacing += 5;
-      std::cout << BG_WHITE << C_BLACK << "Mosaic for " << name << C_RESET << std::setw(spacing);
-    } else {
-      spacing -= 1;
-      std::cout << "Mosaic for " << name << std::setw(spacing);
-    }
+  int iterations = 1;
+  int ROW_LIMIT = 2;
+
+  if (seats / ROW_LIMIT > 1) {
+    iterations = 2;
   }
 
-  std::cout << std::endl;
-
-  // Pretty print player mosaic and pattern lines
-  for (int i = 0; i < 5; ++i) {
-    for (int j = 0; j < (int) players->size(); ++j) {
-      Player* player = players->at(j);
-      PatternLine* pattern = player->getMosaic()->getPattern();
-      WallManager* wall = player->getMosaic()->getWall();
-      
-      std::cout << std::setw(j * 6) << i + 1 << ": ";
-      pattern->printPattern(i);
-      std::cout << "|| ";
-      wall->printWall(i);
-    }
+  for (int count = 0; count < iterations; ++count) {
+    
     std::cout << std::endl;
-  }
+    std::cout << std::endl;
 
-  // Pretty print discard lines
-  for (int i = 0; i < (int) players->size(); ++i) {
-    Player* player = players->at(i);
-    player->getMosaic()->getDiscard()->printDiscard();
-    
-    if (i < (int) players->size() - 1) {
-      std::cout << std::setw(22);
+    // Pretty print player names
+    for (int j = 0; j < ROW_LIMIT; ++j) {
+      int index = j + (ROW_LIMIT * count);
+
+      std::string name = players->at(index)->getName();
+      int spacing = (j + 1) * (31 - (int) name.size());
+      
+      if (active == index) {
+        spacing += 5;
+        std::cout << BG_WHITE << C_BLACK << "Mosaic for " << name << C_RESET << std::setw(spacing);
+      } else {
+        spacing -= 1;
+        std::cout << "Mosaic for " << name << std::setw(spacing);
+      }
     }
 
+    std::cout << std::endl;
+    std::cout << std::endl;
+
+    // Pretty print player mosaic and pattern lines
+    for (int i = 0; i < 5; ++i) {
+      for (int j = 0; j < ROW_LIMIT; ++j) {
+        int index = j + (ROW_LIMIT * count);
+
+        Player* player = players->at(index);
+        PatternLine* pattern = player->getMosaic()->getPattern();
+        WallManager* wall = player->getMosaic()->getWall();
+        
+        std::cout << std::setw(j * 6) << i + 1 << ": ";
+        pattern->printPattern(i);
+        std::cout << "|| ";
+        wall->printWall(i);
+      }
+      std::cout << std::endl;
+    }
+
+    // Pretty print discard lines
+    std::cout << std::endl;
+
+    for (int i = 0; i < ROW_LIMIT; ++i) {
+      int index = i + (ROW_LIMIT * count);
+      int spacing = 0;
+
+      if (index % 2 == 0) {
+        spacing = 22;
+      }
+
+      Player* player = players->at(index);
+      player->getMosaic()->getDiscard()->printDiscard();
+      
+      if (i < (int) players->size() - 1) {
+        std::cout << std::setw(spacing);
+      }
+
+    }
   }
 
   std::cout << std::endl;
@@ -601,6 +628,40 @@ void GameEngine::setupPlayers() {
     name = printer->inputString();
 
     addPlayer(id, name, 0, false);
+  }
+
+}
+
+void GameEngine::setupPlayerCount() {
+
+  bool processing = true;
+
+  int min = 2;
+  int max = 4;
+  int count = -1;
+
+  while (processing && !std::cin.eof()) {
+    
+    printer->clear();
+    std::cout << "Please enter the number of players (2-4).." << std::endl;
+    std::string value = printer->inputString();
+
+    try {
+
+      count = std::stoi(value);
+
+      if (count < min) {
+        printer->error("Error: Player count [" + std::to_string(count) + "] entered, cannot be bellow " + std::to_string(min) + ".");
+      } else if (count > max) {
+        printer->error("Error: Player count [" + std::to_string(count) + "] entered, cannot exceed " + std::to_string(max) + ".");
+      } else {
+        processing = false;
+        setSeats(count);
+      }
+    } catch(std::invalid_argument &e) {
+      printer->error("Error: Value [" + value + "] is not a valid integer.");
+    }
+    
   }
 
 }
