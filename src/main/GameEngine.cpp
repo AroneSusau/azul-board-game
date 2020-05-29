@@ -557,15 +557,21 @@ void GameEngine::display() {
       
       int modifier = seats == 3 && count == 1 ? 1 : 0;
       int index = (j + (rowLimit * count)) + modifier;
-      bool isActive = active == index;
-      int base = (j + 1) * (31 - (int) name.size());
-      int spacing = isActive ? base + 5 : base - 1;
-      spacing = j % 2 != 0 ? 0 : spacing;
       std::string name = players->at(index)->getName();
       std::string activeOutput = BG_BLACK + C_WHITE + "Mosaic for " + name + C_RESET;
       std::string normalOutput = "Mosaic for " + name;
-      std::string output = isActive ? activeOutput : normalOutput;
-      std::cout << output << std::setw(spacing);
+      std::string output = index == active ? activeOutput : normalOutput;
+      std::cout << output;
+      
+      int spacing = 36 - output.size();
+
+      if (index == active) {
+        spacing += 16;
+      }
+
+      for (int l = 0; l < spacing; ++l) { 
+        std::cout << " "; 
+      }
     }
 
     std::cout << std::endl;
