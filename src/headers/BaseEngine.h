@@ -41,11 +41,15 @@ class BaseEngine {
     void clearPlayers();
 
     Factory* getFactory(int index);
-    CentreFactory* getCentreFactory();
+    CentreFactory* getCentreFactory(int index);
+    CentreFactory** getCentreFactories();
     Player* getPlayer(int index);
 
     int getFactoryLength();
     void setFactoryLength(int length);
+
+    int getCentreFactoryLength();
+    void setCentreFactoryLength(int length);
 
     virtual void run(bool isLoadedGame);
     virtual void resetGame();
@@ -53,6 +57,7 @@ class BaseEngine {
   protected:
     int seats;
     int turns;
+    int centreFactoryLength;
     int factoryLength;
     int active;
     bool playing;
@@ -60,7 +65,7 @@ class BaseEngine {
     Bag* bag;
 
     std::vector<Player*>* players;
-    CentreFactory* centreFactory;
+    CentreFactory** centreFactories;
     Factory** factories;
 
 };

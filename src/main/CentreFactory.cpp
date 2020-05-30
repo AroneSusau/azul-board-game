@@ -100,7 +100,7 @@ int CentreFactory::size() {
 }
 
 std::string CentreFactory::toString() {
-  std::string output = "0: ";
+  std::string output = ": ";
 
   if(hasToken) {
     output += BG_WHITE;

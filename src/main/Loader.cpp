@@ -205,23 +205,34 @@ void Loader::parseFactory(SaveDataArgs data, GameEngine* gameEngine) {
 
         delete tmp;
 
-      } else if (field == "mid") {
+      } else if (field == "mid1" || field == "mid2") {
         
-        gameEngine->getCentreFactory()->clear();
-        gameEngine->getCentreFactory()->setToken(true);
+        CentreFactory* centreFactory = new CentreFactory();
+        int index = std::stoi(std::to_string(field[3]));
+        CentreFactory* old = gameEngine->getCentreFactory(index);
+
+        if (old != nullptr) {
+          delete old;
+        }
+
+        centreFactory->setToken(true);
         
         for (int j = 0; j < (int) value.size(); ++j) {
           if (value[0] != '=') {
-            gameEngine->getCentreFactory()->add((Colour) value[j]);
+            centreFactory->add((Colour) value[j]);
           }
         }
 
         for (int i = 0; i < (int) gameEngine->getPlayers()->size(); ++i) {
           if (gameEngine->getPlayer(i)->getStarter()) {
-            gameEngine->getCentreFactory()->setToken(false);
+            centreFactory->setToken(false);
           }
         }
 
+        gameEngine->getCentreFactories()[index] = centreFactory;
+
+      } else if ("centreFactoryLength") {
+        gameEngine->setCentreFactoryLength(std::stoi(value));
       }
     } catch (std::runtime_error &e) {
       error = true;
@@ -303,7 +314,7 @@ bool Loader::validateFields(SaveDataArgs args, std::string type, int length) {
   int result = true;
 
   std::string playerFields [PLAYER_FIELDS_LENGTH] = {"type", "id", "name", "points", "mosaic", "pile", "broken", "starter"};
-  std::string factoryFields [FACTORY_FIELDS_LENGTH] = {"type", "f1", "f2", "f3", "f4", "f5", "mid"};
+  std::string factoryFields [FACTORY_FIELDS_LENGTH] = {"type", "f1", "f2", "f3", "f4", "f5", "centreFactoryLength", "mid1", "mid2"};
   std::string gameFields [GAME_FIELDS_LENGTH] = {"type", "turns", "active", "seats", "seed", "bag", "lid"}; 
 
   for (int i = 0; i < length; ++i) {

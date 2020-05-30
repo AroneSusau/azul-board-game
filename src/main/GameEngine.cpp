@@ -2,16 +2,19 @@
 
 GameEngine::GameEngine() : 
   BaseEngine(), 
-  saver(new Saver()) 
+  saver(new Saver()), 
+  validator(new Validator())
 {}
 
 GameEngine::GameEngine(int seats) : 
   BaseEngine(seats), 
-  saver(new Saver())
+  saver(new Saver()), 
+  validator(new Validator())
 {}
 
 GameEngine::~GameEngine() {
   delete saver;
+  delete validator;
 }
 
 void GameEngine::run(bool isLoadedGame) {
@@ -51,6 +54,7 @@ void GameEngine::setupGame() {
   playing = true;
   setupPlayerCount();
   setupFactoryCount();
+  setupCentreFactoryCount();
   bag->shuffle();
   setupPlayers();
 }
@@ -114,17 +118,17 @@ void GameEngine::playMenu() {
 
 bool GameEngine::turn(std::vector<std::string> moves) {
   
-  bool validInput = validateTurnInput(moves);
+  bool validInput = validator->validateTurnInput(moves, this);
   bool successfulTurn = false;
 
   if (validInput) {
     
     // parse move values
-    int factory = std::stoi(moves.at(1)) - 1;
+    int factory = std::stoi(moves.at(1));
     int row = std::stoi(moves.at(3)) - 1;
     Colour colour = (Colour) moves.at(2)[0];
 
-    bool isCentreFactory = factory == -1;
+    bool isCentreFactory = factory == 0 || factory == 1;
     std::tuple<int, bool> results = factoryMovement(isCentreFactory, factory, colour);
     int amount = std::get<0>(results);
     int firstPlayer = std::get<1>(results);
@@ -147,16 +151,16 @@ bool GameEngine::turn(std::vector<std::string> moves) {
 
 bool GameEngine::discardTurn(std::vector<std::string> moves) {
   
-  bool validInput = validateDiscardInput(moves);
+  bool validInput = validator->validateDiscardInput(moves, this);
   bool successfulTurn = false;
 
   if (validInput) {
 
     // parse move values
-    int factory = std::stoi(moves.at(1)) - 1;
+    int factory = std::stoi(moves.at(1));
     Colour colour = (Colour) moves.at(2)[0];
     
-    bool isCentreFactory = factory == -1;
+    bool isCentreFactory = factory == 1 || factory == 2;
     std::tuple<int, bool> results = factoryMovement(isCentreFactory, factory, colour);
     int amount = std::get<0>(results);
     bool firstPlayer = std::get<1>(results);
@@ -200,29 +204,35 @@ std::tuple<int, bool> GameEngine::factoryMovement(bool isCentreFactory, int fact
   bool firstPlayer = false;
   int amount = 0;
 
-  if(isCentreFactory) {
+  if (isCentreFactory) {
       
-      amount = centreFactory->count(colour);
-      firstPlayer = centreFactory->getToken();
+      amount = centreFactories[factory]->count(colour);
+      firstPlayer = centreFactories[factory]->getToken();
       
       if (firstPlayer) {
-        centreFactory->setToken(false);
+        
+        for (int i = 0; i < centreFactoryLength; ++i) {
+          centreFactories[i]->setToken(false);
+        }
+
         players->at(active)->setStarter(true);
       }
 
-      centreFactory->remove(colour);
+      centreFactories[factory]->remove(colour);
 
     } else {
-
+      
+      factory -= 2;
       amount = factories[factory]->count(colour);
       factories[factory]->remove(colour);
+      int centreFactoryIndex = getCentreFactoryIndex();
       
       for (int i = 0; i < FACTORIES_SIZE; i++) {
         
         Colour remaining = factories[factory]->get(i);
-        
+      
         if (remaining != EMPTY) {
-          centreFactory->add(remaining);
+          centreFactories[centreFactoryIndex]->add(remaining);
           factories[factory]->update(i, EMPTY);
         }
       }
@@ -253,6 +263,35 @@ void GameEngine::endRound() {
 
   printer->pause();
   printer->clear();
+}
+
+int GameEngine::getCentreFactoryIndex() {
+
+  int result = -1;
+  std::string input = "";
+  bool prompting = true;
+
+  std::string amount = centreFactoryLength == 1 ? "0" : "0 or 1";
+
+  while (prompting && !std::cin.eof()) {
+
+    std::cout << "Which centre pile would you like to select? [" << amount << "]" << std::endl;
+    input = printer->inputString();
+
+    try {
+      result = std::stoi(input);
+
+      if (result < 0 || (result > 1 && centreFactoryLength == 2) || (result == 1 && centreFactoryLength == 1)) {
+        printer->error("Error: Invalid centre facrtory value. Please enter " + amount + ".");  
+      } else {
+        prompting = false;
+      }
+    } catch (std::invalid_argument &e) {
+      printer->error("Error: Invalid character type entered. Please enter " + amount + ".");
+    }
+  }
+
+  return result;
 }
 
 bool GameEngine::checkEndCondition() {
@@ -372,8 +411,10 @@ bool GameEngine::factoriesEmpty() {
     }
   }
 
-  if(!centreFactory->isEmpty()) {
-    empty = false;
+  for (int i = 0; i < centreFactoryLength; ++i) {
+    if(!centreFactories[i]->isEmpty()) {
+      empty = false;
+    }
   }
 
   return empty;
@@ -387,147 +428,155 @@ void GameEngine::fillFactories() {
     }
   }  
 
-  centreFactory->setToken(true);
+  for (int i = 0; i < centreFactoryLength; ++i) {
+    centreFactories[i]->setToken(true);
+  }
 }
 
 void GameEngine::resetGame() {
 
   bag->clear();
   players->clear();
-  centreFactory->clear();
   playing = false;
   
   for (int i = 0; i < factoryLength; ++i) {
     factories[i]->clear();
   }
+
+  for (int i = 0; i < centreFactoryLength; ++i) {
+    centreFactories[i]->clear();
+  }
   
 }
 
-bool GameEngine::validateTurnInput(std::vector<std::string> moves) {
-  bool valid = false;
-  bool validArgumentCount = moves.size() == 4;
+void GameEngine::setupPlayers() {
 
-  if (validArgumentCount) {
+  for (int i = 0; i < seats; ++i) {
+    std::string name = "";
+    int id = i + 1;
+    
+    printer->clear();
+    std::cout << "Enter a name for player " << id << std::endl;
+    name = printer->inputString();
+
+    addPlayer(id, name, 0, false);
+  }
+
+}
+
+void GameEngine::setupPlayerCount() {
+
+  bool processing = true;
+
+  int min = 2;
+  int max = 4;
+  int count = -1;
+
+  while (processing && !std::cin.eof()) {
+    
+    printer->clear();
+    std::cout << "Please enter the number of players (2-4).." << std::endl;
+    std::string value = printer->inputString();
+
     try {
-      int factory = std::stoi(moves.at(1));
-      int row = std::stoi(moves.at(3));
-      Colour colour = (Colour) moves.at(2)[0];
-      
-      bool validFactory = validateFactoryInput(factory, colour);
-      bool validRow = validateRowInput(row);
-      bool validColour = validateColourInput(colour);
-      
-      bool validPatternInput = players->at(active)->getMosaic()->validatePatternLineInput(colour, row - 1);
-      bool validWallInput = players->at(active)->getMosaic()->validateWallColourInput(colour, row - 1);
-      
-      valid = validFactory && validRow && validColour && validPatternInput && validWallInput;
 
-    } catch (std::runtime_error &e) {
-      printer->error("Error: Invalid arguments passed in for discard command.");
+      count = std::stoi(value);
+
+      if (count < min) {
+        printer->error("Error: Player count [" + std::to_string(count) + "] entered, cannot be bellow " + std::to_string(min) + ".");
+      } else if (count > max) {
+        printer->error("Error: Player count [" + std::to_string(count) + "] entered, cannot exceed " + std::to_string(max) + ".");
+      } else {
+        processing = false;
+        setSeats(count);
+      }
     } catch(std::invalid_argument &e) {
-      printer->error("Error: Bad character passed in for turn command argument.");
+      printer->error("Error: Value [" + value + "] is not a valid integer.");
     }
-  } else {
-    printer->error("Error: Invalid argument count.");
+    
   }
 
-  return valid;
 }
 
-bool GameEngine::validateDiscardInput(std::vector<std::string> moves) {
-  bool valid = false;
-  bool validArgumentCount = moves.size() == 3;
-  
-  if (validArgumentCount) {
+void GameEngine::setupCentreFactoryCount() {
+
+  int result = -1;
+  std::string input = "";
+  bool prompting = true;
+
+  while (prompting) {
+
+    printer->clear();
+    std::cout << "Please enter the number of centre factrories you would like? 1-2" << std::endl;
+    input = printer->inputString();
+
     try {
-      int factory = std::stoi(moves.at(1));
-      Colour colour = (Colour) moves.at(2)[0];
+
+      result = std::stoi(input);
       
-      bool validFactory = validateFactoryInput(factory, colour);
-      bool validColour = validateColourInput(colour);
-      valid = validFactory && validColour;
-
-    } catch (std::runtime_error &e) {
-      printer->error("Error: Invalid arguments passed in for discard command. Use 'help' for command usage.");
-    } catch(std::invalid_argument &e) {
-      printer->error("Error: Bad character passed in for row argument.");
+      if (result < 1 || (result > 2 && centreFactoryLength == 2) || (result == 2 && centreFactoryLength == 1)) {
+        printer->error("Error: Invalid centre facrtory value. Please enter 1 or 2.");  
+      } else {
+        prompting = false;
+      }
+    } catch (std::invalid_argument &e) {
+      printer->error("Error: Invalid centre facrtory value. Please enter 1 or 2.");  
     }
-  } else {
-    printer->error("Error: Invalid arguments passed in for discard command. Use 'help' for command usage.");
   }
 
-  return valid;
+  centreFactoryLength = result;
+
+  for (int i = 0; i < centreFactoryLength; ++i) {
+    if (centreFactories[i] != nullptr) {
+      delete centreFactories[i];
+    }
+
+    centreFactories[i] = new CentreFactory();
+  }
+
+  printer->clear();
 }
 
-bool GameEngine::validateFactoryInput(int input, Colour colour) {
-  
-  bool valid = true;
-  bool validFactory = input >= 0 && input <= factoryLength;
-  
-  if (validFactory) {
+void GameEngine::setupFactoryCount() {
 
-    int index = input - 1;
-    bool isCentreFactory = index == -1;
-    bool isNormalFactory = index >= 0;
-    bool factoryEmpty = false;
-    bool containsColour = false;
-  
-    if (isCentreFactory) {
-      factoryEmpty = centreFactory->isEmpty();
-      containsColour = centreFactory->count(colour) < 1;
-    } else if (isNormalFactory) {
-      factoryEmpty = factories[index]->isEmpty();
-      containsColour = factories[index]->count(colour) < 1;
-    }
-
-    if (factoryEmpty) {
-      printer->error("Error: " + std::string(1, (char) colour) + " is an empty factory");
-      valid = false;
-    } else if (containsColour) {
-      printer->error("Error: Factory does not contain colour of type " + std::string(1, (char) colour) + ".");
-      valid = false;
-    }
-
-  } else {
-    printer->error("Error: " + std::to_string(input) + " is not a valid factory");
-    valid = false;
+  for (int i = 0; i < factoryLength; ++i) {
+    delete factories[i];
   }
 
-  return valid;
+  delete [] factories;
+
+  if (seats == 3) {
+    factoryLength = 7;
+  } else if (seats == 4) {
+    factoryLength = 9;
+  }
+
+  factories = new Factory*[factoryLength];
+
+  for (int i = 0; i < factoryLength; ++i) {
+    factories[i] = new Factory();
+  }
+
 }
 
-bool GameEngine::validateColourInput(Colour input) { 
-
-  const int length = 5;
-  Colour colours[5] = {RED, YELLOW, DARK_BLUE, LIGHT_BLUE, BLACK};
-  bool valid = true;
-  bool matchFound = false;
-
-  for (int i = 0; i < length; ++i) {
-    if (input == colours[i]) {
-      matchFound = true;
-    }
+void GameEngine::printFactories() {
+  printer->log("Factories:");
+  for (int i = 0; i < centreFactoryLength; ++i) {
+    printer->log("Centre " + std::to_string(i) + centreFactories[i]->toString());
   }
 
-  if (!matchFound) {
-    valid = false;
-    printer->error("Error: " + std::string(1, (char) input) + " is not a valid colour tile");
-  }
+  std::cout << std::endl;
 
-  return valid;
+  for (int i = 0; i < factoryLength; ++i) {
+    int id = i + 2;
+    std::string space = id >= 10 ? " " : "  ";
+
+    printer->log(std::to_string(id) + ":" + space + factories[i]->toString());
+  }
 }
 
-bool GameEngine::validateRowInput(int input) {
-
-  bool valid = true;
-  bool validRow = input > 0 && input <= ROWS;
-
-  if(!validRow) {
-    printer->error("Error: " + std::to_string(input) + " is not a valid row");
-    valid = false;
-  }
-
-  return valid;
+Saver* GameEngine::getSaver() {
+  return saver;
 }
 
 void GameEngine::display() {
@@ -610,88 +659,4 @@ void GameEngine::display() {
   }
 
   std::cout << std::endl;
-}
-
-void GameEngine::setupPlayers() {
-
-  for (int i = 0; i < seats; ++i) {
-    std::string name = "";
-    int id = i + 1;
-    
-    printer->clear();
-    std::cout << "Enter a name for player " << id << std::endl;
-    name = printer->inputString();
-
-    addPlayer(id, name, 0, false);
-  }
-
-}
-
-void GameEngine::setupPlayerCount() {
-
-  bool processing = true;
-
-  int min = 2;
-  int max = 4;
-  int count = -1;
-
-  while (processing && !std::cin.eof()) {
-    
-    printer->clear();
-    std::cout << "Please enter the number of players (2-4).." << std::endl;
-    std::string value = printer->inputString();
-
-    try {
-
-      count = std::stoi(value);
-
-      if (count < min) {
-        printer->error("Error: Player count [" + std::to_string(count) + "] entered, cannot be bellow " + std::to_string(min) + ".");
-      } else if (count > max) {
-        printer->error("Error: Player count [" + std::to_string(count) + "] entered, cannot exceed " + std::to_string(max) + ".");
-      } else {
-        processing = false;
-        setSeats(count);
-      }
-    } catch(std::invalid_argument &e) {
-      printer->error("Error: Value [" + value + "] is not a valid integer.");
-    }
-    
-  }
-
-}
-
-void GameEngine::setupFactoryCount() {
-
-  for (int i = 0; i < factoryLength; ++i) {
-    delete factories[i];
-  }
-
-  delete [] factories;
-
-  if (seats == 3) {
-    factoryLength = 7;
-  } else if (seats == 4) {
-    factoryLength = 9;
-  }
-
-  factories = new Factory*[factoryLength];
-
-  for (int i = 0; i < factoryLength; ++i) {
-    factories[i] = new Factory();
-  }
-
-}
-
-void GameEngine::printFactories() {
-  printer->log("Factories:");
-  printer->log(centreFactory->toString());
-
-  for (int i = 0; i < factoryLength; ++i) {
-    printer->log(std::to_string(i + 1) + ": " + factories[i]->toString());
-  }
-}
-
-Saver* GameEngine::getSaver() {
-  return saver;
 }

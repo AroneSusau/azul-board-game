@@ -10,6 +10,7 @@
 #include "LinkedList.h"
 #include "GameOptions.h"
 #include "Saver.h"
+#include "Validator.h"
 
 class GameEngine : public BaseEngine {
   public:
@@ -29,6 +30,7 @@ class GameEngine : public BaseEngine {
   private:
   
     Saver* saver;
+    Validator* validator;
 
     // Setup for inital game state
     void setupGame();
@@ -42,6 +44,9 @@ class GameEngine : public BaseEngine {
     // Setup number of factories in game
     void setupFactoryCount();
 
+    // Setup number of factories in game
+    void setupCentreFactoryCount();
+
     // setup of a new round, fill factories, first player token back to centre
     void setupRound();
 
@@ -50,6 +55,9 @@ class GameEngine : public BaseEngine {
 
     // Enter game menu, awaiting player input
     void playMenu();
+
+    // Get index of centre factory to move remaining tiles into.
+    int getCentreFactoryIndex();
 
     // Continues a loaded game
     void continueGame();
@@ -86,21 +94,6 @@ class GameEngine : public BaseEngine {
 
     // checks if the game has met the end condition
     bool checkEndCondition();
-
-    // validates input for each turn
-    bool validateTurnInput(std::vector<std::string> moves);
-
-    // validates input for discard turn
-    bool validateDiscardInput(std::vector<std::string> moves);
-
-    // validates factory input for turn command
-    bool validateFactoryInput(int input, Colour colour);
-
-    // validates colour input for turn command
-    bool validateColourInput(Colour input);
-
-    // validates row input for turn command
-    bool validateRowInput(int input);
 
     // display factory and mosaic information for the player
     void display();

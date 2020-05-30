@@ -61,11 +61,16 @@ void Saver::saveFactory(std::ofstream* file, BaseEngine* gameEngine) {
 
   *file << "type:factory" << std::endl;
 
+  *file << "centreFactoryLength:" << gameEngine->getCentreFactoryLength() << std::endl;
+
   for (int i = 0; i < gameEngine->getFactoryLength(); ++i) {
     *file << "f" << i + 1 << ":" << gameEngine->getFactory(i)->toSaveString() << std::endl;
   }
 
-  *file << "mid:" << gameEngine->getCentreFactory()->toSaveString() << std::endl;
+  for (int i = 0; i < gameEngine->getCentreFactoryLength(); ++i) {
+    *file << "mid" << i << ":" << gameEngine->getCentreFactory(i)->toSaveString() << std::endl;
+  }
+  
   *file << "#" << std::endl;
 }
 

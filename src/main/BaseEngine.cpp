@@ -3,13 +3,14 @@
 BaseEngine::BaseEngine() :
   seats(2),
   turns(0),
+  centreFactoryLength(2),
   factoryLength(5),
   active(0),
   playing(false),
   printer(new Printer()),
   bag(new Bag()),
   players(new std::vector<Player*>()),
-  centreFactory(new CentreFactory()),
+  centreFactories(new CentreFactory*[CENTRE_FACTORY_LENGTH]),
   factories(new Factory*[factoryLength]())
 {
   for (int i = 0; i < factoryLength; ++i) {
@@ -20,13 +21,14 @@ BaseEngine::BaseEngine() :
 BaseEngine::BaseEngine(int seats) :
   seats(seats),
   turns(0),
+  centreFactoryLength(2),
   factoryLength(5),
   active(0),
   playing(false),
   printer(new Printer()),
   bag(new Bag()),
   players(new std::vector<Player*>()),
-  centreFactory(new CentreFactory()),
+  centreFactories(new CentreFactory*[CENTRE_FACTORY_LENGTH]),
   factories(new Factory*[factoryLength]())
 {
   for (int i = 0; i < factoryLength; ++i) {
@@ -48,7 +50,7 @@ BaseEngine::~BaseEngine() {
   delete printer;
   delete bag;
   delete players;
-  delete centreFactory;
+  delete [] centreFactories;
   delete [] factories;
 }
 
@@ -110,8 +112,21 @@ Factory* BaseEngine::getFactory(int index) {
   return result;
 }
 
-CentreFactory* BaseEngine::getCentreFactory() {
-  return centreFactory;
+CentreFactory** BaseEngine::getCentreFactories() {
+  return centreFactories;
+}
+
+CentreFactory* BaseEngine::getCentreFactory(int index) {
+  
+  CentreFactory* factory = nullptr;
+
+  if (index >= 0 && index < centreFactoryLength) {
+    factory = centreFactories[index];
+  } else {
+    printer->error("Error: Attempting to access out of bounds Centre Factory.");
+  }
+
+  return factory;
 }
 
 std::vector<Player*>* BaseEngine::getPlayers() {
@@ -132,4 +147,12 @@ int BaseEngine::getFactoryLength() {
 
 void BaseEngine::setFactoryLength(int length) {
   factoryLength = length;
+}
+
+int BaseEngine::getCentreFactoryLength() {
+  return centreFactoryLength;
+}
+
+void BaseEngine::setCentreFactoryLength(int length) {
+  centreFactoryLength = length;
 }

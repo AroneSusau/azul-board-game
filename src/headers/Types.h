@@ -1,6 +1,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#define CENTRE_FACTORY_LENGTH 2
 #define FACTORIES_SIZE 4
 
 #define TILES_MAX 100
