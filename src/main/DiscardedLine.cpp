@@ -55,8 +55,8 @@ int DiscardedLine::count() {
 }
 
 int DiscardedLine::getMinusPoints() {
-    int points[9] = {0, 1, 2, 4, 6, 8, 11, 14, 99};
-    int result = 99;
+    int points[8] = {0, 1, 2, 4, 6, 8, 11, 14};
+    int result = -1;
     
     if (amount >= 0 || amount <= 7) {
         result = points[amount];

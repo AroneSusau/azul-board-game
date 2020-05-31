@@ -41,7 +41,7 @@ void Bag::shuffle() {
 
   for (int i = 0; i < TILES_MAX; ++i) {
     float res = floor(i / 20);
-    tmp[i] = colours[(int) res];
+    tmp[i] = colours[(int) res % 5];
   }
 
   std::default_random_engine engine(seed);

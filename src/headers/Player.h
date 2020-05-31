@@ -10,7 +10,7 @@ class Player {
 public:
     
     Player();
-    Player(int id, std::string name, int score, bool starter);
+    Player(int id, std::string name, int score, bool starter, bool isHuman);
     ~Player();
 
     // Sets the id of the player 
@@ -43,11 +43,18 @@ public:
     // Allows to set if the player is holding the first player token or not
     void setStarter(bool starter);
 
+    // Returns flag for ai or human
+    bool getIsHuman();
+
+    // Set flag for ai or human
+    void setIsHuman(bool human);
+
 private:
     int id;
     std::string name;
     int score;
     bool starter;
+    bool isHuman;
     Mosaic* mosaic;
 
 };

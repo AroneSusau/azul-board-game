@@ -13,7 +13,7 @@ endif
 CC = g++
 CFLAGS = -Wall -Werror -std=$(VER)
 
-BASE_OBJECTS = main.o CentreFactory.o Validator.o Loader.o Factory.o Azul.o PatternRow.o WallManager.o Player.o BaseEngine.o GameEngine.o Printer.o Saver.o Bag.o Tile.o Mosaic.o PatternLine.o DiscardedLine.o Wall.o LinkedList.o Node.o
+BASE_OBJECTS = main.o CentreFactory.o Validator.o Loader.o Factory.o Azul.o PatternRow.o WallManager.o Player.o BaseEngine.o GameEngine.o Printer.o Saver.o Bag.o Tile.o Mosaic.o PatternLine.o DiscardedLine.o Wall.o LinkedList.o Node.o AIPlayer.o
 OBJECTS = $(addprefix objs/, $(BASE_OBJECTS))
 
 .default: all

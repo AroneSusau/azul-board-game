@@ -47,6 +47,7 @@ void Saver::savePlayer(std::ofstream* file, BaseEngine* gameEngine) {
     *file << "mosaic:" << player->getMosaic()->getWall()->toSaveString() << std::endl;
     *file << "pile:" << player->getMosaic()->getPattern()->toSaveString() << std::endl;
     *file << "broken:" << player->getMosaic()->getDiscard()->toSaveString() << std::endl;
+    *file << "isHuman:" << player->getIsHuman() << std::endl;
     *file << "starter:" << player->getStarter() << std::endl;
 
     *file << "#" << std::endl;

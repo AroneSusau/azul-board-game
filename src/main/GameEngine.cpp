@@ -53,6 +53,7 @@ void GameEngine::run(bool isLoadedGame) {
 void GameEngine::setupGame() {
   playing = true;
   setupPlayerCount();
+  setupAiCount();
   setupFactoryCount();
   setupCentreFactoryCount();
   bag->shuffle();
@@ -70,7 +71,7 @@ void GameEngine::playMenu() {
     while (!exit && turnInProgress && !std::cin.eof()) {
 
       display();
-      std::vector<std::string> moves = printer->inputArgs();
+      std::vector<std::string> moves = evaluateMoveSet();
       std::string command = moves[0];
 
       if (command == TURN) {
@@ -225,7 +226,10 @@ std::tuple<int, bool> GameEngine::factoryMovement(bool isCentreFactory, int fact
       factory -= 2;
       amount = factories[factory]->count(colour);
       factories[factory]->remove(colour);
-      int centreFactoryIndex = getCentreFactoryIndex();
+      
+      int centreFactoryIndex = players->at(active)->getIsHuman() ? 
+          getCentreFactoryIndex() :
+          aiPlayer->evaluateCentreFactoryIndex(active, this);
       
       for (int i = 0; i < FACTORIES_SIZE; i++) {
         
@@ -345,7 +349,6 @@ void GameEngine::scoreRound() {
 
         player->getMosaic()->getWall()->getWall()->set(row, col, new bool(true));
         points += player->getMosaic()->getWall()->roundPoints(row, col);
-        points -= player->getMosaic()->getDiscard()->getMinusPoints();
 
         player->addScore(points);
         
@@ -360,6 +363,9 @@ void GameEngine::scoreRound() {
         }
       }
     }
+
+    int broken = player->getMosaic()->getDiscard()->getMinusPoints();
+    player->setScore(player->getScore() - broken);
 
     // Print player points
     std::cout << "Player " << player->getName() << " points: " << player->getScore() << std::endl;
@@ -385,6 +391,8 @@ void GameEngine::calculateWinner() {
   std::string winner = "";
   int winningPoints = 0;
 
+  std::cout << std::endl;
+
   for (int i = 0; i < (int) players->size(); i++) {
     
     std::string name = players->at(i)->getName();
@@ -398,7 +406,7 @@ void GameEngine::calculateWinner() {
     }
   }
 
-  std::cout << "Player " << winner << " wins!! " << std::endl;
+  std::cout << BG_WHITE << C_GREEN << "Player " << winner << " wins!! " << C_RESET << std::endl;
 
 }
 
@@ -433,6 +441,20 @@ void GameEngine::fillFactories() {
   }
 }
 
+std::vector<std::string> GameEngine::evaluateMoveSet() {
+
+  bool activePlayerHuman = players->at(active)->getIsHuman();
+  std::vector<std::string> input;
+
+  if (activePlayerHuman) {
+    input = printer->inputArgs();
+  } else {
+    input = aiPlayer->turn(active, this);
+  }
+
+  return input;
+}
+
 void GameEngine::resetGame() {
 
   bag->clear();
@@ -451,15 +473,44 @@ void GameEngine::resetGame() {
 
 void GameEngine::setupPlayers() {
 
-  for (int i = 0; i < seats; ++i) {
+  int humans = seats - aiLength;
+  const int length = 10;
+  std::string belivableHumanNames[length] = {
+    "Shirley",
+    "Patricia",
+    "Barbara",
+    "Betty",
+    "Helen",
+    "George",
+    "James",
+    "Donald",
+    "John",
+    "William"
+  };
+
+  // Setup humans
+  for (int i = 0; i < humans; ++i) {
     std::string name = "";
+    std::string backup = belivableHumanNames[std::rand() % length];
     int id = i + 1;
     
     printer->clear();
     std::cout << "Enter a name for player " << id << std::endl;
     name = printer->inputString();
 
-    addPlayer(id, name, 0, false);
+    if (name.size() == 0) {
+      name = backup;
+    }
+
+    addPlayer(id, name, 0, false, true);
+  }
+
+  // Setup evil machines DDD:
+  for (int i = 0; i < aiLength; ++i) {
+    std::string name = belivableHumanNames[std::rand() % length] + "_AI";
+    int id = humans + i + 1;
+
+    addPlayer(id, name, 0, false, false);
   }
 
 }
@@ -498,13 +549,47 @@ void GameEngine::setupPlayerCount() {
 
 }
 
+void GameEngine::setupAiCount() {
+
+  bool processing = true;
+
+  int min = 1;
+  int max = seats - 1;
+  int count = -1;
+
+  while (processing && !std::cin.eof()) {
+    
+    printer->clear();
+    std::cout << "Please enter the number of AI you want to play against (" << min << " to " << max << ").." << std::endl;
+    std::string value = printer->inputString();
+
+    try {
+
+      count = std::stoi(value);
+
+      if (count < min) {
+        printer->error("Error: Player count [" + std::to_string(count) + "] entered, cannot be bellow " + std::to_string(min) + ".");
+      } else if (count > max) {
+        printer->error("Error: Player count [" + std::to_string(count) + "] entered, cannot exceed " + std::to_string(max) + ".");
+      } else {
+        processing = false;
+        aiLength = count;
+      }
+    } catch(std::invalid_argument &e) {
+      printer->error("Error: Value [" + value + "] is not a valid integer.");
+    }
+    
+  }
+
+}
+
 void GameEngine::setupCentreFactoryCount() {
 
   int result = -1;
   std::string input = "";
   bool prompting = true;
 
-  while (prompting) {
+  while (prompting && !std::cin.eof()) {
 
     printer->clear();
     std::cout << "Please enter the number of centre factrories you would like? 1-2" << std::endl;

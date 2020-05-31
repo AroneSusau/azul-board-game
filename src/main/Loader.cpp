@@ -104,6 +104,7 @@ void Loader::parsePlayer(SaveDataArgs data, GameEngine* gameEngine) {
   std::string name = "";
   int points = 0;
   bool starter = false;
+  bool isHuman = false;
   Player* player = new Player();
 
   for (int i = 0; i < (int) data.size(); i++) {
@@ -164,6 +165,9 @@ void Loader::parsePlayer(SaveDataArgs data, GameEngine* gameEngine) {
             player->getMosaic()->getDiscard()->add((Colour) result);
           }
         }
+      } else if (field == "isHuman") {
+        isHuman = std::stoi(value) == 1;
+        player->setIsHuman(isHuman);
       } else if (field == "starter") {
         starter = std::stoi(value) == 1;
         player->setStarter(starter);
@@ -171,7 +175,6 @@ void Loader::parsePlayer(SaveDataArgs data, GameEngine* gameEngine) {
         if (starter) {
           player->getMosaic()->getPattern();
         }
-
       }
     } catch (std::runtime_error &e) {
       error = true;
@@ -313,8 +316,8 @@ bool Loader::validateFile(std::ifstream* file, std::string filename) {
 bool Loader::validateFields(SaveDataArgs args, std::string type, int length) {
   int result = true;
 
-  std::string playerFields [PLAYER_FIELDS_LENGTH] = {"type", "id", "name", "points", "mosaic", "pile", "broken", "starter"};
-  std::string factoryFields [FACTORY_FIELDS_LENGTH] = {"type", "f1", "f2", "f3", "f4", "f5", "centreFactoryLength", "mid1", "mid2"};
+  std::string playerFields [PLAYER_FIELDS_LENGTH] = {"type", "id", "name", "points", "mosaic", "pile", "broken", "isHuman", "starter"};
+  std::string factoryFields [FACTORY_FIELDS_LENGTH] = {"type", "centreFactoryLength", "factoryLength", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "mid1", "mid2"};
   std::string gameFields [GAME_FIELDS_LENGTH] = {"type", "turns", "active", "seats", "seed", "bag", "lid"}; 
 
   for (int i = 0; i < length; ++i) {

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <tuple>
 #include <iomanip>
+#include <random>
 
 #include "BaseEngine.h"
 #include "LinkedList.h"
@@ -58,6 +59,12 @@ class GameEngine : public BaseEngine {
 
     // Get index of centre factory to move remaining tiles into.
     int getCentreFactoryIndex();
+
+    // Returns move set from the active player
+    std::vector<std::string> evaluateMoveSet();
+
+    // Sets up the number of ai playing
+    void setupAiCount();
 
     // Continues a loaded game
     void continueGame();

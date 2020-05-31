@@ -39,6 +39,9 @@ class WallManager {
     // Returns true if all fives spots for a colour are true
     bool colourTrue(Colour colour);
 
+    // Returns the next available colour for a specified row, returns empty if full.
+    Colour nextAvailableColour(int row);
+
     // Gets the amount of points at the end of the game
     int endPoints();
 

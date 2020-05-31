@@ -110,3 +110,15 @@ std::string PatternLine::toSaveString() {
 
   return output;
 }
+
+PatternRow* PatternLine::getRow(int row) {
+  PatternRow* result = nullptr;
+  
+  if (row >= 0 && row < DIMENSIONS) {
+    result = tiles[row];
+  } else {
+    printer->error("Error: Attempting to access out of bounds Pattern Line row.");
+  }
+
+  return result;
+}

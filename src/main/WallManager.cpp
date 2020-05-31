@@ -61,53 +61,89 @@ int WallManager::getColourDim(Colour colour, int row) {
   return result;
 }
 
+Colour WallManager::nextAvailableColour(int row) {
+  Colour result = EMPTY;
+
+  if (row >= 0 && row < DIMENSIONS) {
+    for (int i = 0; i < DIMENSIONS; ++i) {
+      if (!*wall->get(row, i)) {
+        result = *colours->get(row, i);
+        i = DIMENSIONS;
+      }
+    }
+  } else {
+    printer->error("Error: Attempting to access out of bounds Wall tile.");
+  }
+
+  return result;
+}
+
 int WallManager::roundPoints(int row, int col) {
-  int horizontalPoints = 0;
-  int verticalPoints = 0;
+  int horizontalPoints = 1;
+  int verticalPoints = 1;
+  int result = 0;
   
   // Horizontal scoring
-  for (int i = 0; i < DIMENSIONS; ++i) {
-    bool beforeCol = i <= col;
-    bool tileLaid = *wall->get(row, i);
-    bool pointsAdded = horizontalPoints > 0;
-    
-    if (beforeCol && tileLaid) {
+  bool leftCheck = true;
+  int leftLimit = col - 1;
+
+  bool rightCheck = true;
+  int rightLimit = col + 1;
+  
+  while (leftCheck && leftLimit >= 0) {
+    if (*wall->get(row, leftLimit)) {
+      leftLimit--;
       horizontalPoints++;
-    } else if (beforeCol && !tileLaid && pointsAdded) {
-      horizontalPoints = 0;
-    } else if (!beforeCol && tileLaid) {
+    } else {
+      leftCheck = false;
+    }
+  }
+  
+  while (rightCheck && rightLimit < DIMENSIONS) {
+    if (*wall->get(row, rightLimit)) {
+      rightLimit++;
       horizontalPoints++;
+    } else {
+      rightCheck = false;
+    }
+  }
+  
+  // Vertical scoring
+  bool upCheck = true;
+  int upLimit = row - 1;
+
+  bool downCheck = true;
+  int downLimit = row + 1;
+
+  while (upCheck && upLimit >= 0) {
+    if (*wall->get(upLimit, col)) {
+      upLimit--;
+      verticalPoints++;
+    } else {
+      upCheck = false;
     }
   }
 
-  // Vertical scoring
-  for (int i = 0; i < DIMENSIONS; ++i) {
-    bool beforeRow = i <= row;
-    bool tileLaid = *wall->get(i, col);
-    bool pointsAdded = verticalPoints > 0;
-    
-    if (beforeRow && tileLaid) {
+  while (downCheck && downLimit < DIMENSIONS) {
+    if (*wall->get(downLimit, col)) {
+      downLimit++;
       verticalPoints++;
-    } else if (beforeRow && !tileLaid && pointsAdded) {
-      verticalPoints = 0;
-    } else if (!beforeRow && tileLaid) {
-      verticalPoints++;
+    } else {
+      downCheck = false;
     }
   }
 
   if (horizontalPoints == 1 && verticalPoints == 1) {
-    return 1;
-  }
-  else if (horizontalPoints == 1 && verticalPoints != 1) {
-    return verticalPoints;
-  }
-  else if (horizontalPoints != 1 && verticalPoints == 1) {
-    return horizontalPoints;
-  }
-  else {
-    return horizontalPoints + verticalPoints;
+    result = 1;
+  } else if (horizontalPoints == 1) {
+    result = verticalPoints;
+  } else if (verticalPoints == 1) {
+    result = horizontalPoints;
+  } else {
+    result = verticalPoints + horizontalPoints;
   }
 
+  return result;
 }
 
 bool WallManager::rowTrue(int row) {

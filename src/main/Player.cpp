@@ -5,14 +5,16 @@ Player::Player() :
   name("defult"),
   score(0),
   starter(0),
+  isHuman(true),
   mosaic(new Mosaic())
 {}
 
-Player::Player(int id, std::string name, int score, bool starter) :
+Player::Player(int id, std::string name, int score, bool starter, bool isHuman) :
   id(id),
   name(name),
   score(score),
   starter(starter),
+  isHuman(isHuman),
   mosaic(new Mosaic())
 {}
 
@@ -58,4 +60,12 @@ bool Player::getStarter() {
 
 void Player::setStarter(bool starter) {
   this->starter = starter;
+}
+
+bool Player::getIsHuman() {
+  return isHuman;
+}
+
+void Player::setIsHuman(bool human) {
+  isHuman = human;
 }

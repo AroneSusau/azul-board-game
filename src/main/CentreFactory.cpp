@@ -99,6 +99,18 @@ int CentreFactory::size() {
   return tiles->size();
 }
 
+bool CentreFactory::contains(Colour colour) {
+  bool result = false;
+  
+  for (int i = 0; i < (int) tiles->size(); ++i) {
+    if (colour == tiles->at(i)->getColour()) {
+      result = true;
+    }
+  }
+
+  return result;
+}
+
 std::string CentreFactory::toString() {
   std::string output = ": ";
 

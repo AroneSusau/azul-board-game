@@ -88,7 +88,7 @@ bool Validator::validateFactoryInput(int input, Colour colour, BaseEngine* gameE
     }
 
     if (factoryEmpty) {
-      printer->error("Error: " + std::to_string(index) + " is an empty factory");
+      printer->error("Error: " + std::to_string(index + 2) + " is an empty factory");
       valid = false;
     } else if (containsColour) {
       printer->error("Error: Factory does not contain colour of type " + std::string(1, (char) colour) + ".");

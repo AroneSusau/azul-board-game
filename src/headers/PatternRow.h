@@ -55,6 +55,9 @@ class PatternRow {
     // Prints the row in a neat format
     void printRow();
 
+    // Returns the number of free slots in the row
+    int remaining();
+
     // Prints the row in a neat format
     std::string toSaveString();
 

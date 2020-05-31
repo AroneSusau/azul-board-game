@@ -83,6 +83,10 @@ bool PatternRow::isEmpty() {
   return length == 0;
 }
 
+int PatternRow::remaining() {
+  return max - length;
+}
+
 bool PatternRow::isFull() {
   return length == max;
 }

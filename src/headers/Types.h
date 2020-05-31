@@ -4,7 +4,7 @@
 #define CENTRE_FACTORY_LENGTH 2
 #define FACTORIES_SIZE 4
 
-#define TILES_MAX 100
+#define TILES_MAX 200
 #define TILES_MIN 0
 
 #define DIMENSIONS 5

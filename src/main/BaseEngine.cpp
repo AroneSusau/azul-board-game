@@ -5,10 +5,12 @@ BaseEngine::BaseEngine() :
   turns(0),
   centreFactoryLength(2),
   factoryLength(5),
+  aiLength(0),
   active(0),
   playing(false),
   printer(new Printer()),
   bag(new Bag()),
+  aiPlayer(new AIPlayer()),
   players(new std::vector<Player*>()),
   centreFactories(new CentreFactory*[CENTRE_FACTORY_LENGTH]),
   factories(new Factory*[factoryLength]())
@@ -23,10 +25,12 @@ BaseEngine::BaseEngine(int seats) :
   turns(0),
   centreFactoryLength(2),
   factoryLength(5),
+  aiLength(0),
   active(0),
   playing(false),
   printer(new Printer()),
   bag(new Bag()),
+  aiPlayer(new AIPlayer()),
   players(new std::vector<Player*>()),
   centreFactories(new CentreFactory*[CENTRE_FACTORY_LENGTH]),
   factories(new Factory*[factoryLength]())
@@ -50,6 +54,7 @@ BaseEngine::~BaseEngine() {
   delete printer;
   delete bag;
   delete players;
+  delete aiPlayer;
   delete [] centreFactories;
   delete [] factories;
 }
@@ -62,8 +67,8 @@ void BaseEngine::addPlayer(Player* player) {
   players->push_back(player);
 }
 
-void BaseEngine::addPlayer(int id, std::string name, int score, bool starter) {
-  players->push_back(new Player(id, name, score, starter));
+void BaseEngine::addPlayer(int id, std::string name, int score, bool starter, bool isHuman) {
+  players->push_back(new Player(id, name, score, starter, isHuman));
 }
 
 void BaseEngine::removePlayer(int index) {

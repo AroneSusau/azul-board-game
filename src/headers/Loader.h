@@ -19,8 +19,8 @@
 
 typedef std::vector<std::vector<std::string>> SaveDataArgs;
 
-#define PLAYER_FIELDS_LENGTH 8
-#define FACTORY_FIELDS_LENGTH 9
+#define PLAYER_FIELDS_LENGTH 9
+#define FACTORY_FIELDS_LENGTH 14
 #define GAME_FIELDS_LENGTH 7
 
 class Loader {

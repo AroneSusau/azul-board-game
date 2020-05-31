@@ -40,6 +40,9 @@ class PatternLine {
     // returns the size of the array
     int size();
 
+    // returns a row at the specified index
+    PatternRow* getRow(int row);
+
     // prints out the pattern line in save string format
     std::string toSaveString();
 

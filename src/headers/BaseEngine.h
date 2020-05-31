@@ -10,6 +10,10 @@
 #include "CentreFactory.h"
 #include "Types.h"
 #include "MenuOptions.h"
+#include "AIPlayer.h"
+
+// Forward Declaration
+class AIPlayer;
 
 /**
  *
@@ -35,7 +39,7 @@ class BaseEngine {
     Bag* getBag();
 
     std::vector<Player*>* getPlayers();
-    void addPlayer(int id, std::string name, int score, bool starter);
+    void addPlayer(int id, std::string name, int score, bool starter, bool isHuman);
     void addPlayer(Player* player);
     void removePlayer(int index); 
     void clearPlayers();
@@ -59,10 +63,12 @@ class BaseEngine {
     int turns;
     int centreFactoryLength;
     int factoryLength;
+    int aiLength;
     int active;
     bool playing;
     Printer* printer;
     Bag* bag;
+    AIPlayer* aiPlayer;
 
     std::vector<Player*>* players;
     CentreFactory** centreFactories;
