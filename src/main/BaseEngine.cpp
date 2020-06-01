@@ -117,6 +117,23 @@ Factory* BaseEngine::getFactory(int index) {
   return result;
 }
 
+void BaseEngine::addFactory(Factory* factory) {
+  
+  const int newLength = factoryLength + 1;
+  Factory** tmp = new Factory*[newLength];
+
+  for (int i = 0; i < factoryLength; ++i) {
+    tmp[i] = factories[i];
+  }
+
+  tmp[factoryLength] = factory;
+  factoryLength++;
+
+  delete [] factories;
+  factories = tmp;
+
+}
+
 CentreFactory** BaseEngine::getCentreFactories() {
   return centreFactories;
 }

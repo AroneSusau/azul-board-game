@@ -6,6 +6,7 @@
 #include <tuple>
 #include <iomanip>
 #include <random>
+#include <algorithm>
 
 #include "BaseEngine.h"
 #include "LinkedList.h"

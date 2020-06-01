@@ -16,6 +16,7 @@ bool Loader::load(std::string filename, GameEngine* gameEngine) {
   std::string line;
 
   gameEngine->clearPlayers();
+  gameEngine->setFactoryLength(0);
 
   if (validateFile(&file, filename)) {
     
@@ -85,7 +86,7 @@ void Loader::parseTypes(SaveDataArgs args, GameEngine* gameEngine) {
       parsePlayer(args, gameEngine);
     }
   } else if (type == "factory") {
-    if (validateFields(args, type, FACTORY_FIELDS_LENGTH)) {
+    if (validateFields(args, type, (int) args.size())) {
       parseFactory(args, gameEngine);
     }
   } else if (type == "game") {
@@ -176,7 +177,7 @@ void Loader::parsePlayer(SaveDataArgs data, GameEngine* gameEngine) {
           player->getMosaic()->getPattern();
         }
       }
-    } catch (std::runtime_error &e) {
+    } catch (std::exception &e) {
       error = true;
       printer->error("Error: Player parsing error on field [" + field + "], with value [" + value + "].");
     }
@@ -195,29 +196,24 @@ void Loader::parseFactory(SaveDataArgs data, GameEngine* gameEngine) {
     std::string value = data[i][1];
 
     try {
-      if (field == "f1" || field == "f2" || field == "f3" || field == "f4" || field == "f5") {
-      
-        const char* tmp = new char(field[1]);
-        int index = std::atoi(tmp) - 1;
-        
-        gameEngine->getFactory(index)->clear();
+      if (field[0] == 'f' && field.size() == 2) {
+        for (int j= 0; j < 9; ++j) {
+          if (field == "f" + std::to_string(j)) {
+            
+            Factory* factory = new Factory();
 
-        for (int j = 0; j < (int) value.size(); ++j) {
-          gameEngine->getFactory(index)->update(j, (Colour) value[j]);
+            for (int k = 0; k < (int) value.size(); ++k) {
+              Colour colour = (Colour) value[k]; 
+              factory->update(k, colour);
+            }
+
+            gameEngine->addFactory(factory);
+          }
         }
-
-        delete tmp;
-
-      } else if (field == "mid1" || field == "mid2") {
+      } else if (field == "mid0" || field == "mid1") {
         
         CentreFactory* centreFactory = new CentreFactory();
-        int index = std::stoi(std::to_string(field[3]));
-        CentreFactory* old = gameEngine->getCentreFactory(index);
-
-        if (old != nullptr) {
-          delete old;
-        }
-
+        int index = std::stoi(std::string(1, field[3]));
         centreFactory->setToken(true);
         
         for (int j = 0; j < (int) value.size(); ++j) {
@@ -232,12 +228,16 @@ void Loader::parseFactory(SaveDataArgs data, GameEngine* gameEngine) {
           }
         }
 
+        if (gameEngine->getCentreFactories()[index] != nullptr) {
+          delete gameEngine->getCentreFactories()[index];
+        }
+
         gameEngine->getCentreFactories()[index] = centreFactory;
 
-      } else if ("centreFactoryLength") {
+      } else if (field == "centreFactoryLength") {
         gameEngine->setCentreFactoryLength(std::stoi(value));
       }
-    } catch (std::runtime_error &e) {
+    } catch (std::exception &e) {
       error = true;
       printer->error("Error: Factory parsing error on field [" + field + "], with value [" + value + "].");
     }
@@ -270,7 +270,7 @@ void Loader::parseGame(SaveDataArgs data, GameEngine* gameEngine) {
           }
         }
       }
-    } catch (std::runtime_error &e) {
+    } catch (std::exception &e) {
       error = true;
       printer->error("Error: Game parsing error on field [" + field + "], with value [" + value + "].");
     }
@@ -317,32 +317,46 @@ bool Loader::validateFields(SaveDataArgs args, std::string type, int length) {
   int result = true;
 
   std::string playerFields [PLAYER_FIELDS_LENGTH] = {"type", "id", "name", "points", "mosaic", "pile", "broken", "isHuman", "starter"};
-  std::string factoryFields [FACTORY_FIELDS_LENGTH] = {"type", "centreFactoryLength", "factoryLength", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "mid1", "mid2"};
+  std::string factoryFields [FACTORY_FIELDS_LENGTH] = {"type", "centreFactoryLength", "factoryLength", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "mid0", "mid1"};
   std::string gameFields [GAME_FIELDS_LENGTH] = {"type", "turns", "active", "seats", "seed", "bag", "lid"}; 
+
+  int arrayLength = 0;
+  std::string* array;
 
   for (int i = 0; i < length; ++i) {
     
-    std::string field = "";
-
     if (type == "player") {
-      field = playerFields[i];
+      arrayLength = PLAYER_FIELDS_LENGTH;
+      array = playerFields;
     } else if (type == "factory") {
-      field = factoryFields[i];
+      arrayLength = FACTORY_FIELDS_LENGTH;
+      array = factoryFields;
     } else if (type == "game") {
-      field = gameFields[i];
+      arrayLength = GAME_FIELDS_LENGTH;
+      array = gameFields;
     }
-    
+
     try {
-      if (args[i][0] != field) {
-        error = true;
-        result = false;
-        printer->error("Error: " + type + " object missing field " + field + ", found " + args[i][0] + " instead.");
-        i = length;
+      std::string field = args[i][0];
+      bool match = false;
+
+      for (int j = 0; j < arrayLength; ++j) {
+        if (field == array[j]) {
+          match = true;
+          j = arrayLength;
+        }
       }
-    } catch (std::runtime_error &e) {
+
+      if (!match) {
         error = true;
         result = false;
-        printer->error("Error: Issue parsing " + type + " object field " + field + ".");
+        i = length;
+        printer->error("Error: Parsing error on " + type + " object, unexpected field [" + field + "] does not exist.");
+      }
+    } catch (std::exception &e) {
+        error = true;
+        result = false;
+        printer->error("Error: Issue parsing " + type + " object field.");
         i = length;
     }
   }

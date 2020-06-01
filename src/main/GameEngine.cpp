@@ -129,7 +129,8 @@ bool GameEngine::turn(std::vector<std::string> moves) {
     int row = std::stoi(moves.at(3)) - 1;
     Colour colour = (Colour) moves.at(2)[0];
 
-    bool isCentreFactory = factory == 0 || factory == 1;
+    bool oneCentre = centreFactoryLength == 1;
+    bool isCentreFactory = oneCentre ? factory == 0 : factory == 0 || factory == 1;
     std::tuple<int, bool> results = factoryMovement(isCentreFactory, factory, colour);
     int amount = std::get<0>(results);
     int firstPlayer = std::get<1>(results);
@@ -160,8 +161,8 @@ bool GameEngine::discardTurn(std::vector<std::string> moves) {
     // parse move values
     int factory = std::stoi(moves.at(1));
     Colour colour = (Colour) moves.at(2)[0];
-    
-    bool isCentreFactory = factory == 1 || factory == 2;
+
+    bool isCentreFactory = factory == 0 || factory == 1;
     std::tuple<int, bool> results = factoryMovement(isCentreFactory, factory, colour);
     int amount = std::get<0>(results);
     bool firstPlayer = std::get<1>(results);
@@ -223,7 +224,7 @@ std::tuple<int, bool> GameEngine::factoryMovement(bool isCentreFactory, int fact
 
     } else {
       
-      factory -= 2;
+      factory -= centreFactoryLength;
       amount = factories[factory]->count(colour);
       factories[factory]->remove(colour);
       
@@ -368,9 +369,23 @@ void GameEngine::scoreRound() {
     player->setScore(player->getScore() - broken);
 
     // Print player points
-    std::cout << "Player " << player->getName() << " points: " << player->getScore() << std::endl;
+    std::cout << player->getName() << ":";
+    int space = 15 - player->getName().size();
+
+    for (int i = 0; i < space; ++i) {
+      std::cout << " ";
+    }
+
+    std::cout << player->getScore() << std::endl;
 
     player->getMosaic()->getDiscard()->clear();
+  }
+
+  for (int i = 0; i < (int) players->size(); ++i) {
+    if (players->at(i)->getStarter()) {
+      std::cout << std::endl;
+      std::cout << BG_WHITE << C_BLACK << "Player " << players->at(i)->getName() << " is starting the next round.." << C_RESET << std::endl;
+    }
   }
 }
 
@@ -388,25 +403,34 @@ void GameEngine::endGameScoring() {
 
 void GameEngine::calculateWinner() {
   
+  std::cout << std::endl;
+  std::cout << "=== END OF GAME - FINAL SCORES ===" << std::endl;
+
   std::string winner = "";
   int winningPoints = 0;
-
-  std::cout << std::endl;
 
   for (int i = 0; i < (int) players->size(); i++) {
     
     std::string name = players->at(i)->getName();
     int score = players->at(i)->getScore();
 
-    std::cout << "Player: " << name << " finished with " << score << " points." << std::endl;
+    std::cout << name << ":";
+    int space = 15 - name.size();
+
+    for (int i = 0; i < space; ++i) {
+      std::cout << " ";
+    }
+
+    std::cout << score << std::endl;
     
     if (score > winningPoints) {
       winner = name;
       winningPoints = score;
     }
   }
-
-  std::cout << BG_WHITE << C_GREEN << "Player " << winner << " wins!! " << C_RESET << std::endl;
+  
+  std::cout << std::endl;
+  std::cout << C_GREEN << "Player " << winner << " wins!! " << C_RESET << std::endl;
 
 }
 
@@ -420,6 +444,10 @@ bool GameEngine::factoriesEmpty() {
   }
 
   for (int i = 0; i < centreFactoryLength; ++i) {
+    if (centreFactories[i] == nullptr) {
+      std::cout << "NULL NULL " << i << std::endl;
+    }
+    
     if(!centreFactories[i]->isEmpty()) {
       empty = false;
     }
@@ -462,11 +490,15 @@ void GameEngine::resetGame() {
   playing = false;
   
   for (int i = 0; i < factoryLength; ++i) {
-    factories[i]->clear();
+    if (factories[i] != nullptr) {
+      factories[i]->clear();
+    }
   }
 
   for (int i = 0; i < centreFactoryLength; ++i) {
-    centreFactories[i]->clear();
+    if (centreFactories[i] != nullptr) {
+      centreFactories[i]->clear();
+    }
   }
   
 }
@@ -474,7 +506,7 @@ void GameEngine::resetGame() {
 void GameEngine::setupPlayers() {
 
   int humans = seats - aiLength;
-  const int length = 10;
+  const int length = 13;
   std::string belivableHumanNames[length] = {
     "Shirley",
     "Patricia",
@@ -485,7 +517,10 @@ void GameEngine::setupPlayers() {
     "James",
     "Donald",
     "John",
-    "William"
+    "William",
+    "Gladys",
+    "Imaani",
+    "Melton"
   };
 
   // Setup humans
@@ -505,9 +540,14 @@ void GameEngine::setupPlayers() {
     addPlayer(id, name, 0, false, true);
   }
 
-  // Setup evil machines DDD:
+  // Setup evil machines D:
+  std::shuffle(
+    std::begin(belivableHumanNames), 
+    std::end(belivableHumanNames), 
+    std::default_random_engine(std::time(nullptr)));
+
   for (int i = 0; i < aiLength; ++i) {
-    std::string name = belivableHumanNames[std::rand() % length] + "_AI";
+    std::string name = belivableHumanNames[i] + "_AI";
     int id = humans + i + 1;
 
     addPlayer(id, name, 0, false, false);
@@ -554,7 +594,7 @@ void GameEngine::setupAiCount() {
   bool processing = true;
 
   int min = 1;
-  int max = seats - 1;
+  int max = seats;//- 1;
   int count = -1;
 
   while (processing && !std::cin.eof()) {
@@ -589,6 +629,16 @@ void GameEngine::setupCentreFactoryCount() {
   std::string input = "";
   bool prompting = true;
 
+  for (int i = 0; i < centreFactoryLength; ++i) {
+    if (centreFactories[i] != nullptr) {
+      delete centreFactories[i];
+    }
+  }
+
+  if (centreFactories != nullptr) {
+    delete [] centreFactories;
+  }
+
   while (prompting && !std::cin.eof()) {
 
     printer->clear();
@@ -599,7 +649,7 @@ void GameEngine::setupCentreFactoryCount() {
 
       result = std::stoi(input);
       
-      if (result < 1 || (result > 2 && centreFactoryLength == 2) || (result == 2 && centreFactoryLength == 1)) {
+      if (result < 1 || result > 2) {
         printer->error("Error: Invalid centre facrtory value. Please enter 1 or 2.");  
       } else {
         prompting = false;
@@ -610,12 +660,9 @@ void GameEngine::setupCentreFactoryCount() {
   }
 
   centreFactoryLength = result;
+  centreFactories = new CentreFactory*[centreFactoryLength];
 
   for (int i = 0; i < centreFactoryLength; ++i) {
-    if (centreFactories[i] != nullptr) {
-      delete centreFactories[i];
-    }
-
     centreFactories[i] = new CentreFactory();
   }
 
@@ -653,7 +700,7 @@ void GameEngine::printFactories() {
   std::cout << std::endl;
 
   for (int i = 0; i < factoryLength; ++i) {
-    int id = i + 2;
+    int id = i + centreFactoryLength;
     std::string space = id >= 10 ? " " : "  ";
 
     printer->log(std::to_string(id) + ":" + space + factories[i]->toString());
@@ -692,7 +739,7 @@ void GameEngine::display() {
       int modifier = seats == 3 && count == 1 ? 1 : 0;
       int index = (j + (rowLimit * count)) + modifier;
       std::string name = players->at(index)->getName();
-      std::string activeOutput = BG_BLACK + C_WHITE + "Mosaic for " + name + C_RESET;
+      std::string activeOutput = BG_GREEN + C_WHITE + "Mosaic for " + name + C_RESET;
       std::string normalOutput = "Mosaic for " + name;
       std::string output = index == active ? activeOutput : normalOutput;
       std::cout << output;

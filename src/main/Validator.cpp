@@ -56,7 +56,7 @@ bool Validator::validateDiscardInput(std::vector<std::string> moves, BaseEngine*
     } catch (std::runtime_error &e) {
       printer->error("Error: Invalid arguments passed in for discard command. Use 'help' for command usage.");
     } catch(std::invalid_argument &e) {
-      printer->error("Error: Bad character passed in for row argument.");
+      printer->error("Error: Bad character passed in for discard argument.");
     }
   } else {
     printer->error("Error: Invalid arguments passed in for discard command. Use 'help' for command usage.");
@@ -73,22 +73,23 @@ bool Validator::validateFactoryInput(int input, Colour colour, BaseEngine* gameE
   if (validFactory) {
 
     int index = input;
-    bool isCentreFactory = index == 0 || index == 1;
-    bool isNormalFactory = index >= 2;
     bool factoryEmpty = false;
     bool containsColour = false;
+    bool oneCentre = gameEngine->getCentreFactoryLength() == 1;
+    bool isCentreFactory = oneCentre ? index == 0 : index == 0 || index == 1;
+    bool isNormalFactory = oneCentre ? index >= 1 : index >= 2;
   
     if (isCentreFactory) {
       factoryEmpty = gameEngine->getCentreFactory(index)->isEmpty();
       containsColour = gameEngine->getCentreFactory(index)->count(colour) < 1;
     } else if (isNormalFactory) {
-      index -= 2;
+      index -= gameEngine->getCentreFactoryLength();
       factoryEmpty = gameEngine->getFactory(index)->isEmpty();
       containsColour = gameEngine->getFactory(index)->count(colour) < 1;
     }
 
     if (factoryEmpty) {
-      printer->error("Error: " + std::to_string(index + 2) + " is an empty factory");
+      printer->error("Error: " + std::to_string(index + gameEngine->getCentreFactoryLength()) + " is an empty factory");
       valid = false;
     } else if (containsColour) {
       printer->error("Error: Factory does not contain colour of type " + std::string(1, (char) colour) + ".");

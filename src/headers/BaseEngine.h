@@ -24,38 +24,55 @@ class BaseEngine {
 
   public:
     BaseEngine();
+
     BaseEngine(int seats);
+
     virtual ~BaseEngine();
 
     int getSeats();
+
     void setSeats(int seats);
     
     int getTurns();
+    
     void setTurns(int turn);
 
     int getActivePlayer();
+
     void setActivePlayer(int active);
 
     Bag* getBag();
 
     std::vector<Player*>* getPlayers();
+
     void addPlayer(int id, std::string name, int score, bool starter, bool isHuman);
+    
     void addPlayer(Player* player);
+
     void removePlayer(int index); 
+
     void clearPlayers();
 
     Factory* getFactory(int index);
+    
+    void addFactory(Factory* factories);
+
     CentreFactory* getCentreFactory(int index);
+    
     CentreFactory** getCentreFactories();
+
     Player* getPlayer(int index);
 
     int getFactoryLength();
+
     void setFactoryLength(int length);
 
     int getCentreFactoryLength();
+    
     void setCentreFactoryLength(int length);
 
     virtual void run(bool isLoadedGame);
+    
     virtual void resetGame();
 
   protected:

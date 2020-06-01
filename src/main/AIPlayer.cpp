@@ -1,8 +1,8 @@
 #include "../headers/AIPlayer.h"
 
-AIPlayer::AIPlayer() {}
+AIPlayer::AIPlayer(): printer(new Printer()) {}
 
-AIPlayer::~AIPlayer() {}
+AIPlayer::~AIPlayer() { delete printer; }
 
 std::vector<std::string> AIPlayer::turn(int index, BaseEngine* gameEngine) {
   std::vector<std::string> move;
@@ -14,32 +14,37 @@ std::vector<std::string> AIPlayer::turn(int index, BaseEngine* gameEngine) {
 }
 
 bool AIPlayer::canTurn(int index, BaseEngine* gameEngine) {
+    
+  const int colourLength = 5;
+  Colour colours[colourLength] = {BLACK, RED, YELLOW, LIGHT_BLUE, DARK_BLUE};
+  
+  Player* ai = gameEngine->getPlayer(index);
+  
   bool result = false;
 
-  Player* ai = gameEngine->getPlayer(index);
-
   for (int i = 0; i < ROWS; ++i) {
+    Colour colour = ai->getMosaic()->getPattern()->getColour(i);
     bool rowNotFull = !ai->getMosaic()->getPattern()->isRowFull(i);
+    bool rowEmpty = colour == EMPTY;
 
-    if (rowNotFull) {
-      PatternLine* pattern = ai->getMosaic()->getPattern();
-      Colour colour = pattern->getColour(i);
-
-      for (int j = 0; j < gameEngine->getFactoryLength(); ++j) {
-        bool colourAvailable = gameEngine->getFactory(j)->contains(colour);
-
-        if (colourAvailable || colour == EMPTY) {
-          result = true;
+    if (rowEmpty) {
+      for (int j = 0; j < colourLength; ++j) {
+        bool wallFree = !ai->getMosaic()->getWall()->isColourSet(colours[j], i);
+        
+        if (wallFree) {
+          bool colourExists = queryFactoryColour(colours[j], gameEngine);
+          
+          if (colourExists) {
+            result = true;
+            i = ROWS;
+            j = colourLength;
+          }
         }
-      }
-
-      for (int j = 0; j < gameEngine->getCentreFactoryLength(); ++j) {
-        bool colourAvailable =
-            gameEngine->getCentreFactory(j)->contains(colour);
-
-        if (colourAvailable || colour == EMPTY) {
-          result = true;
-        }
+      } 
+    } else if (rowNotFull) {
+      if (queryFactoryColour(colour, gameEngine)) {
+        result = true;
+        i = ROWS;
       }
     }
   }
@@ -50,132 +55,110 @@ bool AIPlayer::canTurn(int index, BaseEngine* gameEngine) {
 std::vector<std::string> AIPlayer::evaluateTurn(int index, BaseEngine* gameEngine) {
   std::vector<std::string> move;
 
-  const int colourLength = 5;
-  Colour colours[colourLength] = {BLACK, RED, YELLOW, LIGHT_BLUE, DARK_BLUE};
-
   std::string turn = "turn";
   std::string factory = "-1";
   std::string colour = "E";
   std::string pile = "-1";
 
   bool searching = true;
+  const int colourLength = 5;
+  int cycleLimit = 20;
 
   Player* player = gameEngine->getPlayer(index);
-  int offset = 0;
-  int multiplier = 1;
 
   while (searching) {
 
     for (int i = 0; i < DIMENSIONS; ++i) {
       PatternRow* row = player->getMosaic()->getPattern()->getRow(i);
       WallManager* wall = player->getMosaic()->getWall();
+      Colour rowColour = row->getColour();
 
-      if (!row->isFull() && !wall->rowTrue(i)) {
-        
-        Colour rowColour = row->getColour() == EMPTY ?
-          wall->nextAvailableColour(i) :
-          row->getColour();
+      // Case 1. Pattern line partially full
+      if (!row->isFull() && !wall->rowTrue(i) && rowColour != EMPTY) {
 
-        int remaining = row->remaining();
+        int result = -1;
+        int offset = 0;
+        int amount = 0;
+        int quantity = row->getMax() - row->count();
+        bool findingMatch = true;
+        bool flipped = false;
+        bool colourAvailable = queryFactoryColour(rowColour, gameEngine);
 
-        remaining -= remaining == 1 ? 0 : offset;
+        if (colourAvailable) {
+          while (findingMatch) {
+            amount = quantity + offset;
+            result = queryFactoryColourAmount(amount, rowColour, gameEngine);
 
-        // Normal factories
-        for (int j = 0; j < gameEngine->getFactoryLength(); ++j) {
-          Factory* factoryObj = gameEngine->getFactory(j);
+            if (result != -1) {
 
-          if (!factoryObj->isEmpty()) {
-            bool colourMatch = factoryObj->contains(rowColour);
-            bool remainingMatch = factoryObj->count(rowColour) == remaining;
-
-            if (colourMatch && remainingMatch) {
-              factory = std::to_string(j + 2);
+              factory = std::to_string(result);
               colour = std::string(1, rowColour);
               pile = std::to_string(i + 1);
-              j = gameEngine->getFactoryLength();
               i = DIMENSIONS;
               searching = false;
+              findingMatch = false;
+
+            } else if (result == -1 && amount < cycleLimit && !flipped) {
+              offset++;
+            } else if (result == -1 && amount >= cycleLimit && !flipped) {
+              flipped = true;
+              offset = -1;
+            } else if (result == -1 && amount > 0 && flipped) {
+              offset--;
+            } else if (result == -1 && amount == 0 && flipped) {
+              findingMatch = false;
             }
+            amount = 0;
           }
         }
 
-        // Centre factories
-        if (searching) {
-          for (int j = 0; j < gameEngine->getCentreFactoryLength(); ++j) {
-            CentreFactory* factoryObj = gameEngine->getCentreFactory(j);
+      // Case 2. Pattern line empty
+      } else if (!row->isFull() && !wall->rowTrue(i) && rowColour == EMPTY) {
+        for (int j = 0; j < colourLength; ++j) {
+          int result = -1;
+          int offset = 0;
+          int quantity = row->getMax() - row->count();
+          int amount = 0;
+          bool findingMatch = true;
+          bool flipped = false;
+          rowColour = *wall->getColours()->get(i, j);
+          bool colourSetOnWall = wall->isColourSet(rowColour, i);
 
-            if (!factoryObj->isEmpty()) {
-              bool colourMatch = factoryObj->contains(rowColour);
-              bool remainingMatch = factoryObj->count(rowColour) == remaining;
+          if (!colourSetOnWall) {
+            bool colourAvailable = queryFactoryColour(rowColour, gameEngine);
 
-              if (colourMatch && remainingMatch) {
-                factory = std::to_string(j);
-                colour = std::string(1, rowColour);
-                pile = std::to_string(i + 1);
-                j = gameEngine->getFactoryLength();
-                i = DIMENSIONS;
-                searching = false;
-              }
-            }
-          }
-        } 
-      }
-    }
+            if (colourAvailable) {
 
-    offset += multiplier;
+              while (findingMatch) {
+                amount = quantity + offset;
+                result = queryFactoryColourAmount(amount, rowColour, gameEngine);
 
-    if (offset > 5) {
-      multiplier *= -1;
-      offset = -1;
-    }
+                if (result != -1) {
 
-    if (offset < -5) {
-      for (int i = 0; i < DIMENSIONS; ++i) {
-        PatternRow* row = player->getMosaic()->getPattern()->getRow(i);
-        WallManager* wall = player->getMosaic()->getWall();
-
-        if (row->isEmpty() && !wall->rowTrue(i)) {
-          for (int j = 0; j < colourLength; ++j) {
-
-            Colour rowColour = colours[j];
-
-            if (!wall->isColourSet(rowColour, i)) {
-              
-              // Normal factories
-              for (int k = 0; k < gameEngine->getFactoryLength(); ++k) {
-                Factory* factoryObj = gameEngine->getFactory(k);
-                
-                if (!factoryObj->isEmpty() && factoryObj->contains(rowColour)) {
-                  factory = std::to_string(k + 2);
+                  factory = std::to_string(result);
                   colour = std::string(1, rowColour);
                   pile = std::to_string(i + 1);
-                  j = colourLength;
                   i = DIMENSIONS;
-                  k = gameEngine->getFactoryLength();
+                  j = colourLength;
                   searching = false;
-                }
-              }
+                  findingMatch = false;
 
-              // Centre factories
-              if (searching) {
-                for (int k = 0; k < gameEngine->getCentreFactoryLength(); k++) {
-                CentreFactory* factoryObj = gameEngine->getCentreFactory(k);
-                
-                  if (!factoryObj->isEmpty() && factoryObj->contains(rowColour)) {
-                    factory = std::to_string(k);
-                    colour = std::string(1, rowColour);
-                    pile = std::to_string(i + 1);
-                    j = colourLength;
-                    i = DIMENSIONS;
-                    k = gameEngine->getFactoryLength();
-                    searching = false;
-                  }
+                } else if (result == -1 && amount < cycleLimit && !flipped) {
+                  offset++;
+                } else if (result == -1 && amount >= cycleLimit && !flipped) {
+                  flipped = true;
+                  offset = -1;
+                } else if (result == -1 && amount > 0 && flipped) {
+                  offset--;
+                } else if (result == -1 && amount == 0 && flipped) {
+                  findingMatch = false;
                 }
+                amount = 0;
               }
-            }   
+            }
           }
         }
-      }
+      }   
     }
   }
 
@@ -183,8 +166,6 @@ std::vector<std::string> AIPlayer::evaluateTurn(int index, BaseEngine* gameEngin
   move.push_back(factory);
   move.push_back(colour);
   move.push_back(pile);
-
-  std::cout << "TURN: " << turn + " " + factory + " " + colour + " " + pile << std::endl;
 
   return move;
 }
@@ -219,48 +200,25 @@ std::vector<std::string> AIPlayer::evaluateDiscard(BaseEngine* gameEngine) {
   int minimalColourCount = 1;
 
   while (minimisingPointLossage) {
-    // Normal Factories
-    for (int i = 0; i < gameEngine->getFactoryLength(); ++i) {
-      if (!gameEngine->getFactory(i)->isEmpty()) {
-        for (int j = 0; j < colourLength; ++j) {
-          Colour next = colours[j];
-          int colourCount = gameEngine->getFactory(i)->count(next);
+    
+    int result = -1;
 
-          if (colourCount == minimalColourCount) {
-            factory = std::to_string(i + 2);
-            colour = std::string(1, next);
-            searching = false;
-            minimisingPointLossage = false;
-            j = colourLength;
-            i = gameEngine->getFactoryLength();
-          }
-        }
+    for (int i = 0; i < colourLength; ++i) {
+      result = queryFactoryColourAmount(minimalColourCount, colours[i], gameEngine);
+
+      if (result != -1) {
+        searching = false;
+        minimisingPointLossage = false;
+        factory = std::to_string(result);
+        colour = std::string(1, colours[i]);
+        i = colourLength;
       }
     }
 
-    // Centre Factories
-    if (searching) {
-      for (int i = 0; i < gameEngine->getCentreFactoryLength(); ++i) {
-        if (!gameEngine->getCentreFactory(i)->isEmpty()) {
-          for (int j = 0; j < colourLength; ++j) {
-            Colour next = colours[j];
-            int colourCount = gameEngine->getCentreFactory(i)->count(next);
+    ++minimalColourCount;
 
-            if (colourCount == minimalColourCount) {
-              factory = std::to_string(i);
-              colour = std::string(1, next);
-              searching = false;
-              minimisingPointLossage = false;
-              j = colourLength;
-              i = gameEngine->getCentreFactoryLength();
-            }
-          }
-        }
-      }
-    }
-
-    if (searching) {
-      minimalColourCount++;
+    if (minimalColourCount > 10) {
+      printer->error("Error->evaluateDiscard: No valid discard value found.");
     }
   }
 
@@ -269,4 +227,67 @@ std::vector<std::string> AIPlayer::evaluateDiscard(BaseEngine* gameEngine) {
   move.push_back(colour);
 
   return move;
+}
+
+int AIPlayer::queryFactoryColourAmount(int amount, Colour colour, BaseEngine* gameEngine) {
+
+  int result = -1;
+
+  // Normal Factories
+  for (int i = 0; i < gameEngine->getFactoryLength(); ++i) {
+    Factory* factory = gameEngine->getFactory(i);
+    
+    if (!factory->isEmpty()) {
+      bool containsColour = factory->contains(colour);
+      bool countMatch = factory->count(colour) == amount;
+
+      if (containsColour && countMatch) {
+        result = i + gameEngine->getCentreFactoryLength();
+        i = gameEngine->getFactoryLength();
+      }
+    }
+  }
+
+  // Centre Factories
+  for (int i = 0; i < gameEngine->getCentreFactoryLength(); ++i) {
+    if (result == -1) {
+      CentreFactory* factory = gameEngine->getCentreFactory(i);
+      
+      if (!factory->isEmpty()) {
+        bool containsColour = factory->contains(colour);
+        bool countMatch = factory->count(colour) == amount;
+
+        if (containsColour && countMatch) {
+          result = i;
+          i = gameEngine->getCentreFactoryLength();
+        }
+      }
+    } else {
+      i = gameEngine->getCentreFactoryLength();
+    }
+  }
+
+  return result;
+}
+
+bool AIPlayer::queryFactoryColour(Colour colour, BaseEngine* gameEngine) {
+  bool result = false;
+
+  // Normal Factories
+  for (int i = 0; i < gameEngine->getFactoryLength(); ++i) {
+    if (gameEngine->getFactory(i)->contains(colour)) {
+      result = true;
+      i = gameEngine->getFactoryLength();
+    }
+  }
+
+  // Centre Factories
+  for (int i = 0; i < gameEngine->getCentreFactoryLength(); ++i) {
+    if (!result && gameEngine->getCentreFactory(i)->contains(colour)) {
+      result = true;
+      i = gameEngine->getCentreFactoryLength();
+    }
+  }
+
+  return result;
 }
