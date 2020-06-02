@@ -62,7 +62,6 @@ std::vector<std::string> AIPlayer::evaluateTurn(int index, BaseEngine* gameEngin
 
   bool searching = true;
   const int colourLength = 5;
-  int cycleLimit = 20;
 
   Player* player = gameEngine->getPlayer(index);
 
@@ -75,89 +74,31 @@ std::vector<std::string> AIPlayer::evaluateTurn(int index, BaseEngine* gameEngin
 
       // Case 1. Pattern line partially full
       if (!row->isFull() && !wall->rowTrue(i) && rowColour != EMPTY) {
+        std::cout << "ok" << std::endl;
+        factory = std::to_string(findMatchingColour(gameEngine, row, i, wall, rowColour));
 
-        int result = -1;
-        int offset = 0;
-        int amount = 0;
-        int quantity = row->getMax() - row->count();
-        bool findingMatch = true;
-        bool flipped = false;
-        bool colourAvailable = queryFactoryColour(rowColour, gameEngine);
-
-        if (colourAvailable) {
-          while (findingMatch) {
-            amount = quantity + offset;
-            result = queryFactoryColourAmount(amount, rowColour, gameEngine);
-
-            if (result != -1) {
-
-              factory = std::to_string(result);
-              colour = std::string(1, rowColour);
-              pile = std::to_string(i + 1);
-              i = DIMENSIONS;
-              searching = false;
-              findingMatch = false;
-
-            } else if (result == -1 && amount < cycleLimit && !flipped) {
-              offset++;
-            } else if (result == -1 && amount >= cycleLimit && !flipped) {
-              flipped = true;
-              offset = -1;
-            } else if (result == -1 && amount > 0 && flipped) {
-              offset--;
-            } else if (result == -1 && amount == 0 && flipped) {
-              findingMatch = false;
-            }
-            amount = 0;
-          }
+        if (factory != "-1") {
+          colour = std::string(1, rowColour);
+          pile = std::to_string(i + 1);
+          searching = false;
+          i = DIMENSIONS;
         }
 
       // Case 2. Pattern line empty
       } else if (!row->isFull() && !wall->rowTrue(i) && rowColour == EMPTY) {
         for (int j = 0; j < colourLength; ++j) {
-          int result = -1;
-          int offset = 0;
-          int quantity = row->getMax() - row->count();
-          int amount = 0;
-          bool findingMatch = true;
-          bool flipped = false;
+          
           rowColour = *wall->getColours()->get(i, j);
-          bool colourSetOnWall = wall->isColourSet(rowColour, i);
+          factory = std::to_string(findMatchingColour(gameEngine, row, i, wall, rowColour));
 
-          if (!colourSetOnWall) {
-            bool colourAvailable = queryFactoryColour(rowColour, gameEngine);
-
-            if (colourAvailable) {
-
-              while (findingMatch) {
-                amount = quantity + offset;
-                result = queryFactoryColourAmount(amount, rowColour, gameEngine);
-
-                if (result != -1) {
-
-                  factory = std::to_string(result);
-                  colour = std::string(1, rowColour);
-                  pile = std::to_string(i + 1);
-                  i = DIMENSIONS;
-                  j = colourLength;
-                  searching = false;
-                  findingMatch = false;
-
-                } else if (result == -1 && amount < cycleLimit && !flipped) {
-                  offset++;
-                } else if (result == -1 && amount >= cycleLimit && !flipped) {
-                  flipped = true;
-                  offset = -1;
-                } else if (result == -1 && amount > 0 && flipped) {
-                  offset--;
-                } else if (result == -1 && amount == 0 && flipped) {
-                  findingMatch = false;
-                }
-                amount = 0;
-              }
-            }
+          if (factory != "-1") {
+            colour = std::string(1, rowColour);
+            pile = std::to_string(i + 1);
+            searching = false;
+            i = DIMENSIONS;
+            j = colourLength;
           }
-        }
+        } 
       }   
     }
   }
@@ -180,6 +121,45 @@ int AIPlayer::evaluateCentreFactoryIndex(int index, BaseEngine* gameEngine) {
     result = smallerFactory ? 1 : 0;
   } else {
     result = 0;
+  }
+
+  return result;
+}
+
+int AIPlayer::findMatchingColour(BaseEngine* gameEngine, PatternRow* row, int rowIndex, WallManager* wall, Colour rowColour) {
+  int result = -1;
+  int offset = 0;
+  int quantity = row->getMax() - row->count();
+  int amount = 0;
+  int cycleLimit = 20;
+  bool findingMatch = true;
+  bool flipped = false;
+  bool colourSetOnWall = wall->isColourSet(rowColour, rowIndex);
+
+  if (!colourSetOnWall) {
+    bool colourAvailable = queryFactoryColour(rowColour, gameEngine);
+
+    if (colourAvailable) {
+
+      while (findingMatch) {
+        amount = quantity + offset;
+        result = queryFactoryColourAmount(amount, rowColour, gameEngine);
+
+        if (result != -1) {
+          findingMatch = false;
+        } else if (result == -1 && amount < cycleLimit && !flipped) {
+          offset++;
+        } else if (result == -1 && amount >= cycleLimit && !flipped) {
+          flipped = true;
+          offset = -1;
+        } else if (result == -1 && amount > 0 && flipped) {
+          offset--;
+        } else if (result == -1 && amount == 0 && flipped) {
+          findingMatch = false;
+        }
+        amount = 0;
+      }
+    }
   }
 
   return result;

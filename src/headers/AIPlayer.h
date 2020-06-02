@@ -46,6 +46,9 @@ class AIPlayer {
     // Returns true if a colour exists in any factory
     bool queryFactoryColour(Colour colour, BaseEngine* gameEngine);
 
+    // Returns the index of a factory containing the required colour
+    int findMatchingColour(BaseEngine* gameEngine, PatternRow* row, int rowIndex,  WallManager* wall, Colour rowColour);
+
 };
 
 
