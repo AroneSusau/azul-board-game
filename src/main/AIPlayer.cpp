@@ -196,7 +196,6 @@ std::vector<std::string> AIPlayer::evaluateDiscard(BaseEngine* gameEngine) {
   Colour colours[colourLength] = {BLACK, RED, YELLOW, LIGHT_BLUE, DARK_BLUE};
 
   bool minimisingPointLossage = true;
-  bool searching = true;
   int minimalColourCount = 1;
 
   while (minimisingPointLossage) {
@@ -207,7 +206,6 @@ std::vector<std::string> AIPlayer::evaluateDiscard(BaseEngine* gameEngine) {
       result = queryFactoryColourAmount(minimalColourCount, colours[i], gameEngine);
 
       if (result != -1) {
-        searching = false;
         minimisingPointLossage = false;
         factory = std::to_string(result);
         colour = std::string(1, colours[i]);
