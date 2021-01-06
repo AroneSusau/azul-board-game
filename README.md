@@ -1,9 +1,5 @@
 # Advance Programming - Assignment 2
 
-| Author | Student# | 
-|---------------------|----------|
-| Arone Susau         | s3728977 |
-
 This project recreates the [Azul](https://en.wikipedia.org/wiki/Azul_(board_game)) board game in the command line. Its compatible for up to 4 players which can be either human or a basic AI.
 
 ## Project Build
